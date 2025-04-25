@@ -568,8 +568,6 @@
           <input-type value-pairs-name="common_identifiers">qualdrop_value</input-type>
           <repeatable>true</repeatable>
           <required />
-          <hint>If the item has any identification numbers or codes associated with
-it, please enter the types and the actual numbers or codes.</hint>
         </field>
       </row>
       <row>
@@ -767,6 +765,50 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>false</repeatable>
           <required />
           <hint>If applicable, the page where this publication ends</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>citation</dc-element>
+          <dc-qualifier>quartile</dc-qualifier>
+          <label>Quartile</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>citation</dc-element>
+          <dc-qualifier>edition</dc-qualifier>
+          <label>Journal Edition</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>citation</dc-element>
+          <dc-qualifier>editorial</dc-qualifier>
+          <label>Editorial</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>citation</dc-element>
+          <dc-qualifier>numreport</dc-qualifier>
+          <label>Num report</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
         </field>
       </row>
     </form>

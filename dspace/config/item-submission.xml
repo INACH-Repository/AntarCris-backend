@@ -200,7 +200,7 @@
       <step id="publication" />
       <step id="publication_indexing" />
       <step id="publication_bibliographic_details" />
-      <step id="publication_references" />
+      <!--<step id="publication_references" />-->
       <step id="correction" />
       <step id="detect-duplicate" />
     </submission-process>
