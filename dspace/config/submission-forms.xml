@@ -2022,7 +2022,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-qualifier>ods</dc-qualifier>
           <label>ODS Area</label>
           <input-type value-pairs-name="ods_area">dropdown</input-type>
-          <repeatable>false</repeatable>
+          <repeatable>true</repeatable>
           <required />
           <hint />
         </field>
