@@ -71,8 +71,26 @@
     </dc-type>
     <dc-type>
         <schema>antarc</schema>
-        <element>journal</element>
+        <element>citation</element>
         <qualifier>quartile</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    <dc-type>
+        <schema>antarc</schema>
+        <element>citation</element>
+        <qualifier>edition</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    <dc-type>
+        <schema>antarc</schema>
+        <element>citation</element>
+        <qualifier>editorial</qualifier>
+        <scope_note></scope_note>
+    </dc-type>
+    <dc-type>
+        <schema>antarc</schema>
+        <element>citation</element>
+        <qualifier>numreport</qualifier>
         <scope_note></scope_note>
     </dc-type>
 </dspace-dc-types>

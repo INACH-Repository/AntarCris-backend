@@ -1,6 +1,6 @@
 ## Ignore the MVN compiled output directories from version tracking
 target/
-
+ca-certificate.crt
 ## Ignore tags index files created by Exuberant Ctags
 tags
 
@@ -46,6 +46,8 @@ nb-configuration.xml
 ##Ignore JRebel project configuration
 rebel.xml
 
+##Template files
+template/
 
 ## Ignore jenv configuration
 .java-version
