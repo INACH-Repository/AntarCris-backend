@@ -19,6 +19,7 @@ import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.dao.RelationshipDAO;
 import org.dspace.content.service.EntityTypeService;
 import org.dspace.content.service.ItemService;
+import org.dspace.content.service.RelationshipPlacesIndexingService;
 import org.dspace.content.service.RelationshipTypeService;
 import org.dspace.content.virtual.VirtualMetadataPopulator;
 import org.dspace.core.Constants;
@@ -72,6 +73,9 @@ public class RelationshipServiceImplTest {
 
     @Mock
     private ConfigurationService configurationService;
+
+    @Mock
+    private RelationshipPlacesIndexingService relationshipPlacesIndexingService;
 
     @Spy
     private RelationshipVersioningUtils relationshipVersioningUtils;
@@ -213,7 +217,10 @@ public class RelationshipServiceImplTest {
         // and RelationshipType
         assertEquals("TestCreate 2", relationship, relationshipService.create(context, leftItem, rightItem,
                 testRel,0,0));
-
+        // The reported Relationship should match our defined relationship, given left/right item
+        // RelationshipType and bypassValidation
+        assertEquals("TestCreate 3", relationship, relationshipService.create(context, leftItem, rightItem,
+                testRel, true));
         context.restoreAuthSystemState();
     }
 

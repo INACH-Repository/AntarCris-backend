@@ -9,6 +9,7 @@ package org.dspace.external.provider.impl;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -47,6 +48,14 @@ public class LiveImportDataProvider extends AbstractExternalDataProvider {
         return sourceIdentifier;
     }
 
+    public QuerySource getQuerySource() {
+        return querySource;
+    }
+
+    public void setQuerySource(QuerySource querySource) {
+        this.querySource = querySource;
+    }
+
     /**
      * This method set the SourceIdentifier for the ExternalDataProvider
      * @param sourceIdentifier   The UNIQUE sourceIdentifier to be set on any LiveImport data provider
@@ -83,7 +92,7 @@ public class LiveImportDataProvider extends AbstractExternalDataProvider {
     public Optional<ExternalDataObject> getExternalDataObject(String id) {
         try {
             ExternalDataObject externalDataObject = getExternalDataObject(querySource.getRecord(id));
-            return Optional.of(externalDataObject);
+            return Optional.ofNullable(externalDataObject);
         } catch (MetadataSourceException e) {
             throw new RuntimeException(
                     "The live import provider " + querySource.getImportSource() + " throws an exception", e);
@@ -127,9 +136,8 @@ public class LiveImportDataProvider extends AbstractExternalDataProvider {
      * @return
      */
     private ExternalDataObject getExternalDataObject(ImportRecord record) {
-        //return 400 if no record were found
-        if (record == null) {
-            throw new IllegalArgumentException("No record found for query or id");
+        if (Objects.isNull(record)) {
+            return null;
         }
         ExternalDataObject externalDataObject = new ExternalDataObject(sourceIdentifier);
         String id = getFirstValue(record, recordIdMetadata);

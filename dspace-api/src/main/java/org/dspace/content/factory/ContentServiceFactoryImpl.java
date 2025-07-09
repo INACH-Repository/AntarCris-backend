@@ -159,7 +159,6 @@ public class ContentServiceFactoryImpl extends ContentServiceFactory {
     public SubscribeService getSubscribeService() {
         return subscribeService ;
     }
-
     @Override
     public RelationshipTypeService getRelationshipTypeService() {
         return relationshipTypeService;

@@ -129,7 +129,6 @@ public class EPersonRestAuthenticationProvider implements AuthenticationProvider
                     int authenticateResult = authenticationService
                         .authenticate(newContext, name, password, null, request);
                     if (AuthenticationMethod.SUCCESS == authenticateResult) {
-
                         log.info(LogHelper
                                      .getHeader(newContext, "login", "type=explicit"));
 

@@ -29,7 +29,7 @@
          repositories use underscores when storing these language codes (e.g. en_GB, de_CH).
          This template translates all underscores to hyphens when selecting value of @lang in an attribute
          so the output will be e.g. xml:lang="en-GB", xml:lang="de-CH". -->
-    
+
     <!-- We need the prefix to determine DOIs that were minted by ourself. -->
     <xsl:param name="prefix">10.5072/dspace-</xsl:param>
     <!-- The content of the following parameter will be used as element publisher. -->
@@ -40,6 +40,7 @@
     <xsl:param name="hostinginstitution"><xsl:value-of select="$publisher" /></xsl:param>
     <!-- Please take a look into the DataCite schema documentation if you want to know how to use these elements.
          http://schema.datacite.org -->
+    <xsl:variable name="placeholder">#PLACEHOLDER_PARENT_METADATA_VALUE#</xsl:variable>
     <!-- Metadata-field to retrieve DOI from items -->
     <xsl:param name="mdSchema">dc</xsl:param>
     <xsl:param name="mdElement">identifier</xsl:param>
@@ -356,10 +357,26 @@
 
     <!-- DataCite (2) :: Creator -->
     <xsl:template match="//dspace:field[@mdschema='dc' and @element='contributor' and @qualifier='author']">
+        <xsl:variable name="counter" select="position()"/>
         <creator>
             <creatorName>
                 <xsl:value-of select="." />
             </creatorName>
+            <xsl:if test="contains(., ',')">
+                <givenName>
+                    <xsl:value-of select="substring-after(., ', ')"/>
+                </givenName>
+                <familyName>
+                    <xsl:value-of select="substring-before(., ',')"/>
+                </familyName>
+            </xsl:if>
+            <xsl:if test="//dspace:field[@mdschema='cris' and @element='virtual' and @qualifier='author-orcid'][number($counter)]!=$placeholder and //dspace:field[@mdschema='cris' and @element='virtual' and @qualifier='author-orcid'][number($counter)]!=''">
+                <nameIdentifier>
+                    <xsl:attribute name="schemeURI">https://orcid.org/</xsl:attribute>
+                    <xsl:attribute name="nameIdentifierScheme">ORCID</xsl:attribute>
+                    <xsl:value-of select="//dspace:field[@mdschema='cris' and @element='virtual' and @qualifier='author-orcid'][$counter]"/>
+                </nameIdentifier>
+            </xsl:if>
         </creator>
     </xsl:template>
 

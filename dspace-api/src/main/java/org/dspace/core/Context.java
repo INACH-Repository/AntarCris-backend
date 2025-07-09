@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.Logger;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
@@ -33,6 +34,7 @@ import org.dspace.event.service.EventService;
 import org.dspace.storage.rdbms.DatabaseConfigVO;
 import org.dspace.storage.rdbms.DatabaseUtils;
 import org.dspace.utils.DSpace;
+import org.hibernate.Session;
 import org.springframework.util.CollectionUtils;
 
 /**
@@ -451,6 +453,14 @@ public class Context implements AutoCloseable {
         }
     }
 
+    public void clear() {
+        try {
+            ((Session) dbConnection.getSession()).clear();
+            reloadContextBoundEntities();
+        } catch (SQLException e) {
+            throw new SQLRuntimeException(e);
+        }
+    }
 
     /**
      * Dispatch any events (cached in current Context) to configured EventListeners (consumers)
@@ -906,9 +916,23 @@ public class Context implements AutoCloseable {
         dbConnection.uncacheEntity(entity);
     }
 
+    /**
+     * Force this session to flush.
+     * 
+     * @throws SQLException passed through.
+     */
+    public void flush() throws SQLException {
+        dbConnection.flush();
+    }
+
     public Boolean getCachedAuthorizationResult(DSpaceObject dspaceObject, int action, EPerson eperson) {
+        return getCachedAuthorizationResult(dspaceObject, action, eperson, null);
+    }
+
+    public Boolean getCachedAuthorizationResult(DSpaceObject dspaceObject, int action,
+        EPerson eperson, Boolean inheritance) {
         if (isReadOnly()) {
-            return readOnlyCache.getCachedAuthorizationResult(dspaceObject, action, eperson);
+            return readOnlyCache.getCachedAuthorizationResult(dspaceObject, action, eperson, inheritance);
         } else {
             return null;
         }
@@ -916,8 +940,13 @@ public class Context implements AutoCloseable {
 
     public void cacheAuthorizedAction(DSpaceObject dspaceObject, int action, EPerson eperson, Boolean result,
                                       ResourcePolicy rp) {
+        cacheAuthorizedAction(dspaceObject, action, eperson, null, result, rp);
+    }
+
+    public void cacheAuthorizedAction(DSpaceObject dspaceObject, int action, EPerson eperson,
+        Boolean inheritance, Boolean result, ResourcePolicy rp) {
         if (isReadOnly()) {
-            readOnlyCache.cacheAuthorizedAction(dspaceObject, action, eperson, result);
+            readOnlyCache.cacheAuthorizedAction(dspaceObject, action, eperson, inheritance, result);
             try {
                 uncacheEntity(rp);
             } catch (SQLException e) {
@@ -945,6 +974,7 @@ public class Context implements AutoCloseable {
             readOnlyCache.cacheAllMemberGroupsSet(ePerson, groups);
         }
     }
+
 
     public Set<Group> getCachedAllMemberGroupsSet(EPerson ePerson) {
         if (isReadOnly()) {

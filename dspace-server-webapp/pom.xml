@@ -1,6 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.dspace</groupId>
     <artifactId>dspace-server-webapp</artifactId>
     <name>DSpace Server Webapp</name>
     <description>
@@ -14,7 +13,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>8.1</version>
+        <version>cris-2024.02.01</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -282,6 +281,130 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <id>addon-iiif</id>
+            <activation>
+                <property>
+                    <name>iiif.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-iiif-api</artifactId>
+                    <version>${addon-iiif.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>addon-ocr</id>
+            <activation>
+                <property>
+                    <name>ocr.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-ocr-api</artifactId>
+                    <version>${addon-ocr.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!--
+            Builds Audio Video addon for DSpace
+        -->
+        <profile>
+            <id>addon-video</id>
+            <activation>
+                <property>
+                    <name>audiovideo.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-video-api</artifactId>
+                    <version>${addon-video.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>addon-document-viewer</id>
+            <activation>
+                <property>
+                    <name>docviewer.on</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>it.4science.dspace</groupId>
+                    <artifactId>addon-docviewer-api</artifactId>
+                    <version>${addon-docviewer.version}</version>
+                    <type>jar</type>
+                </dependency>
+            </dependencies>
+        </profile>
+
+	   	<profile>
+			<id>addon-analytics</id>
+	         <activation>
+	            <property>
+	               <name>analytics.on</name>
+	            </property>
+	         </activation>
+			<dependencies>
+				<dependency>
+					<groupId>it.4science.dspace</groupId>
+					<artifactId>addon-analytics-api</artifactId>
+					<version>${addon-analytics.version}</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+		</profile>
+
+        <!-- Builds LoginMIUR addon for DSpace -->
+	   	<profile>
+        <id>addon-loginmiur</id>
+             <activation>
+                <property>
+                   <name>loginmiur.on</name>
+                </property>
+             </activation>
+        <dependencies>
+          <dependency>
+            <groupId>it.4science.dspace</groupId>
+            <artifactId>addon-loginmiur-api</artifactId>
+            <version>${addon-loginmiur.version}</version>
+            <type>jar</type>
+          </dependency>
+        </dependencies>
+      </profile>
+
+        <!-- Builds Import Plus addon for DSpace -->
+      <profile>
+        <id>addon-importplus</id>
+             <activation>
+                <property>
+                   <name>importplus.on</name>
+                </property>
+             </activation>
+        <dependencies>
+          <dependency>
+            <groupId>it.4science.dspace</groupId>
+            <artifactId>addon-importplus</artifactId>
+            <version>${addon-importplus.version}</version>
+            <type>jar</type>
+          </dependency>
+        </dependencies>
+      </profile>
     </profiles>
 
 
@@ -515,6 +638,12 @@
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-sword</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>xalan</groupId>
+                    <artifactId>xalan</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.dspace</groupId>
@@ -547,14 +676,6 @@
             </exclusions>
         </dependency>
 
-        <!-- Specify the version of json-smart we want to use.
-             This solves a version mismatch between nimbus-jose-jwt and json-path below. -->
-        <dependency>
-            <groupId>net.minidev</groupId>
-            <artifactId>json-smart</artifactId>
-            <version>2.5.1</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
@@ -578,6 +699,12 @@
             <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <version>${ehcache.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.jaxb</groupId>
+                    <artifactId>jaxb-runtime</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- TEST DEPENDENCIES -->
@@ -585,6 +712,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>json-smart</artifactId>
+                    <groupId>net.minidev</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- Required for ITs to ensure they use Apache HttpClient in AbstractWebClientIntegrationTest -->
         <dependency>
@@ -598,6 +731,12 @@
             <artifactId>spring-security-test</artifactId>
             <version>${spring-security.version}</version>
             <scope>test</scope>
+        </dependency>
+        <!-- Specify the version of json-smart we want to use.
+             This solves a version mismatch between nimbus-jose-jwt and json-path below. -->
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
         </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>

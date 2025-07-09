@@ -6,12 +6,11 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.app.rest.repository;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,8 +18,6 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.converter.DSpaceRunnableParameterConverter;
 import org.dspace.app.rest.exception.DSpaceBadRequestException;
 import org.dspace.app.rest.exception.UnprocessableEntityException;
@@ -30,6 +27,7 @@ import org.dspace.app.rest.model.ScriptRest;
 import org.dspace.app.rest.scripts.handler.impl.RestDSpaceRunnableHandler;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
+import org.dspace.eperson.EPerson;
 import org.dspace.scripts.DSpaceCommandLineParameter;
 import org.dspace.scripts.DSpaceRunnable;
 import org.dspace.scripts.configuration.ScriptConfiguration;
@@ -49,8 +47,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Component(ScriptRest.CATEGORY + "." + ScriptRest.PLURAL_NAME)
 public class ScriptRestRepository extends DSpaceRestRepository<ScriptRest, String> {
 
-    private static final Logger log = LogManager.getLogger();
-
     @Autowired
     private ScriptService scriptService;
 
@@ -58,8 +54,7 @@ public class ScriptRestRepository extends DSpaceRestRepository<ScriptRest, Strin
     private DSpaceRunnableParameterConverter dSpaceRunnableParameterConverter;
 
     @Override
-    // authorization is verified inside the method
-    @PreAuthorize("hasAuthority('AUTHENTICATED')")
+    @PreAuthorize("permitAll()")
     public ScriptRest findOne(Context context, String name) {
         ScriptConfiguration scriptConfiguration = scriptService.getScriptConfiguration(name);
         if (scriptConfiguration != null) {
@@ -73,11 +68,12 @@ public class ScriptRestRepository extends DSpaceRestRepository<ScriptRest, Strin
     }
 
     @Override
-    // authorization check is performed inside the script service
-    @PreAuthorize("hasAuthority('AUTHENTICATED')")
     public Page<ScriptRest> findAll(Context context, Pageable pageable) {
         List<ScriptConfiguration> scriptConfigurations =
-            scriptService.getScriptConfigurations(context);
+            scriptService.getScriptConfigurations(context)
+                         .stream()
+                         .sorted(Comparator.comparing(ScriptConfiguration::getName))
+                         .collect(Collectors.toList());
         return converter.toRestPage(scriptConfigurations, pageable, utils.obtainProjection());
     }
 
@@ -112,11 +108,12 @@ public class ScriptRestRepository extends DSpaceRestRepository<ScriptRest, Strin
         } catch (IllegalArgumentException e) {
             throw new DSpaceBadRequestException("Illegal argoument " + e.getMessage(), e);
         }
-        RestDSpaceRunnableHandler restDSpaceRunnableHandler = new RestDSpaceRunnableHandler(
-            context.getCurrentUser(), scriptToExecute.getName(), dSpaceCommandLineParameters,
-            new HashSet<>(context.getSpecialGroups()));
+        EPerson user = context.getCurrentUser();
+        RestDSpaceRunnableHandler restDSpaceRunnableHandler = new RestDSpaceRunnableHandler(user,
+            scriptToExecute.getName(), dSpaceCommandLineParameters, context.getSpecialGroups(),
+            context.getCurrentLocale());
         List<String> args = constructArgs(dSpaceCommandLineParameters);
-        runDSpaceScript(files, context, scriptToExecute, restDSpaceRunnableHandler, args);
+        runDSpaceScript(files, context, user, scriptToExecute, restDSpaceRunnableHandler, args);
         return converter.toRest(restDSpaceRunnableHandler.getProcess(context), utils.obtainProjection());
     }
 
@@ -146,12 +143,12 @@ public class ScriptRestRepository extends DSpaceRestRepository<ScriptRest, Strin
         return args;
     }
 
-    private void runDSpaceScript(List<MultipartFile> files, Context context, ScriptConfiguration scriptToExecute,
-                                 RestDSpaceRunnableHandler restDSpaceRunnableHandler, List<String> args)
+    private void runDSpaceScript(List<MultipartFile> files, Context context, EPerson user,
+        ScriptConfiguration scriptToExecute, RestDSpaceRunnableHandler restDSpaceRunnableHandler, List<String> args)
         throws IOException, SQLException, AuthorizeException, InstantiationException, IllegalAccessException {
         DSpaceRunnable dSpaceRunnable = scriptService.createDSpaceRunnableForScriptConfiguration(scriptToExecute);
         try {
-            dSpaceRunnable.initialize(args.toArray(new String[0]), restDSpaceRunnableHandler, context.getCurrentUser());
+            dSpaceRunnable.initialize(args.toArray(new String[0]), restDSpaceRunnableHandler, user);
             if (files != null && !files.isEmpty()) {
                 checkFileNames(dSpaceRunnable, files);
                 processFiles(context, restDSpaceRunnableHandler, files);
@@ -201,6 +198,5 @@ public class ScriptRestRepository extends DSpaceRestRepository<ScriptRest, Strin
             throw new UnprocessableEntityException("Files given in properties aren't all present in the request");
         }
     }
-
 
 }

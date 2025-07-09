@@ -73,39 +73,6 @@
           <hint>Enter the affiliation of the author as stated on the publication.</hint>
         </field>
       </row>
-      <row>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>affiliation</dc-element>
-          <dc-qualifier>orcid</dc-qualifier>
-          <label>Author's Orcid</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>affiliation</dc-element>
-          <dc-qualifier>ror</dc-qualifier>
-          <label>Author's ROR affiliation</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>affiliation</dc-element>
-          <dc-qualifier>country</dc-qualifier>
-          <label>Author's Country</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-        </field>
-      </row>
     </form>
     <form name="publication-dc-contributor-editor">
       <row>
@@ -331,17 +298,6 @@
           <style>col-xs-12 col-md-6 col-lg-3</style>
           <hint />
         </field>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>affiliation</dc-element>
-          <dc-qualifier>ror</dc-qualifier>
-          <label>ROR id</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <style>col-xs-12 col-md-6 col-lg-3</style>
-          <hint />
-        </field>
       </row>
     </form>
     <form name="person-crisrp-qualification">
@@ -553,12 +509,12 @@
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>identifier</dc-element>
-          <!--<dc-qualifier>doi</dc-qualifier>
-          <input-type>onebox</input-type>-->
           <label>Identifiers</label>
           <input-type value-pairs-name="common_identifiers">qualdrop_value</input-type>
           <repeatable>true</repeatable>
           <required />
+          <hint>If the item has any identification numbers or codes associated with
+it, please enter the types and the actual numbers or codes.</hint>
         </field>
       </row>
       <row>
@@ -570,6 +526,18 @@
           <repeatable>false</repeatable>
           <required>You must enter a main title for this item.</required>
           <hint>Enter the main title of the item.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>title</dc-element>
+          <dc-qualifier>alternative</dc-qualifier>
+          <label>Other Titles</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>If the item has any alternative titles, please enter them here.</hint>
         </field>
       </row>
       <row>
@@ -601,6 +569,18 @@
       <row>
         <field>
           <dc-schema>dc</dc-schema>
+          <dc-element>contributor</dc-element>
+          <dc-qualifier>editor</dc-qualifier>
+          <label>Editors</label>
+          <input-type>group</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint>The editors of this publication.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
           <dc-element>type</dc-element>
           <label>Type</label>
           <input-type>onebox</input-type>
@@ -615,12 +595,37 @@
       <row>
         <field>
           <dc-schema>dc</dc-schema>
+          <dc-element>language</dc-element>
+          <dc-qualifier>iso</dc-qualifier>
+          <label>Language</label>
+          <input-type value-pairs-name="common_iso_languages">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>Select the language of the main content of the item. If the language does not appear in the list, please select 'Other'.  If the content does not really have a language (for example, if it is a dataset or an image) please select 'N/A'.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
           <dc-element>subject</dc-element>
           <label>Subject Keywords</label>
           <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
           <hint>Type the appropriate keyword or phrase and press Enter to add it.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>datacite</dc-schema>
+          <dc-element>subject</dc-element>
+          <dc-qualifier>fos</dc-qualifier>
+          <label>Fields of Science and Technology (OECD)</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
+          <vocabulary closed="true">oecd</vocabulary>
         </field>
       </row>
       <row>
@@ -635,44 +640,34 @@
           <hint>Enter the abstract of the item.</hint>
         </field>
       </row>
-      <row>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>area</dc-element>
-          <dc-qualifier>inach</dc-qualifier>
-          <label>INACH Area</label>
-          <input-type value-pairs-name="inach_area">dropdown</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint />
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>area</dc-element>
-          <dc-qualifier>anid</dc-qualifier>
-          <label>ANID Area</label>
-          <input-type value-pairs-name="anid_area">dropdown</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint />
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>area</dc-element>
-          <dc-qualifier>ocde</dc-qualifier>
-          <label>OCDE Area</label>
-          <input-type value-pairs-name="ocde_area">dropdown</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint />
-        </field>
-      </row>
     </form>
     <form name="publication_bibliographic_details">
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>publication</dc-qualifier>
+          <label>Part Of</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>The publication where this publication is included. E.g. a book chapter lists here the book, a contribution to a conference lists here the conference proceeding.</hint>
+          <type-bind>publication-coar-types:c_3248,publication-coar-types:c_5794,publication-coar-types:c_6670</type-bind>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>isbn</dc-qualifier>
+          <label>ISBN (of the container)</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>The ISBN of the book/report if it was not found in the system</hint>
+          <type-bind>publication-coar-types:c_3248,publication-coar-types:c_5794,publication-coar-types:c_6670</type-bind>
+        </field>
+      </row>
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -708,6 +703,57 @@
           <repeatable>true</repeatable>
           <required />
           <hint>Enter the series and number assigned to this item by your community.</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>issn</dc-qualifier>
+          <label>ISSN</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>The journal or Serie ISSN if it was not found in the system</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>coverage</dc-element>
+          <dc-qualifier>publication</dc-qualifier>
+          <label>Review of</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>The publication object of the review</hint>
+          <type-bind>publication-coar-types:c_efa0,publication-coar-types:c_ba08</type-bind>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>coverage</dc-element>
+          <dc-qualifier>isbn</dc-qualifier>
+          <label>ISBN (of the reviewed item)</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>The ISBN of the reviewed item if it was not found in the system</hint>
+          <type-bind>publication-coar-types:c_efa0,publication-coar-types:c_ba08</type-bind>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>coverage</dc-element>
+          <dc-qualifier>doi</dc-qualifier>
+          <label>DOI (of the reviewed item)</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>The DOI of the reviewed item if it was not found in the system</hint>
+          <type-bind>publication-coar-types:c_efa0,publication-coar-types:c_ba08</type-bind>
         </field>
       </row>
       <row>
@@ -756,50 +802,6 @@
           <repeatable>false</repeatable>
           <required />
           <hint>If applicable, the page where this publication ends</hint>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>citation</dc-element>
-          <dc-qualifier>quartile</dc-qualifier>
-          <label>Quartile</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>citation</dc-element>
-          <dc-qualifier>edition</dc-qualifier>
-          <label>Journal Edition</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>citation</dc-element>
-          <dc-qualifier>editorial</dc-qualifier>
-          <label>Editorial</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>citation</dc-element>
-          <dc-qualifier>numreport</dc-qualifier>
-          <label>Num report</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
         </field>
       </row>
     </form>
@@ -1388,6 +1390,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>name</input-type>
           <repeatable>false</repeatable>
           <required>You must enter least at the Surname.</required>
+          <hint />
         </field>
       </row>
       <row>
@@ -1398,6 +1401,19 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>name</input-type>
           <repeatable>false</repeatable>
           <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>crisrp</dc-schema>
+          <dc-element>name</dc-element>
+          <dc-qualifier>translated</dc-qualifier>
+          <label>Vernacular Name</label>
+          <input-type>name</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
         </field>
       </row>
       <row>
@@ -1409,6 +1425,48 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>name</input-type>
           <repeatable>true</repeatable>
           <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>person</dc-schema>
+          <dc-element>givenName</dc-element>
+          <label>First name</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+        <field>
+          <dc-schema>person</dc-schema>
+          <dc-element>familyName</dc-element>
+          <label>Family name</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>person</dc-schema>
+          <dc-element>birthDate</dc-element>
+          <label>Birth Date</label>
+          <input-type>date</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+        <field>
+          <dc-schema>oairecerif</dc-schema>
+          <dc-element>person</dc-element>
+          <dc-qualifier>gender</dc-qualifier>
+          <label>Gender</label>
+          <input-type value-pairs-name="gender">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
         </field>
       </row>
       <row>
@@ -1417,8 +1475,9 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-element>jobTitle</dc-element>
           <label>Job Title</label>
           <input-type>onebox</input-type>
-          <repeatable>true</repeatable>
+          <repeatable>false</repeatable>
           <required />
+          <hint />
         </field>
         <field>
           <dc-schema>person</dc-schema>
@@ -1426,17 +1485,32 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-qualifier>name</dc-qualifier>
           <label>Main Affiliation</label>
           <input-type>onebox</input-type>
-          <repeatable>true</repeatable>
+          <repeatable>false</repeatable>
           <required />
+          <hint />
         </field>
+      </row>
+      <row>
         <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>affiliation</dc-element>
-          <dc-qualifier>ror</dc-qualifier>
-          <label>ROR id</label>
+          <dc-schema>crisrp</dc-schema>
+          <dc-element>workgroup</dc-element>
+          <label>Working group(s)</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
           <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>oairecerif</dc-schema>
+          <dc-element>identifier</dc-element>
+          <dc-qualifier>url</dc-qualifier>
+          <label>Personal Site(s)</label>
+          <input-type>link</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
         </field>
       </row>
       <row>
@@ -1447,6 +1521,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
+          <hint />
         </field>
       </row>
       <row>
@@ -1457,6 +1532,20 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>tag</input-type>
           <repeatable>true</repeatable>
           <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>datacite</dc-schema>
+          <dc-element>subject</dc-element>
+          <dc-qualifier>fos</dc-qualifier>
+          <label>Fields of Science and Technology (OECD)</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
+          <vocabulary closed="true">oecd</vocabulary>
         </field>
       </row>
       <row>
@@ -1468,6 +1557,8 @@ it, please enter the types and the actual numbers or codes.</hint>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
+          <hint>Settable by connecting the entity with ORCID</hint>
+          <readonly>all</readonly>
         </field>
       </row>
       <row>
@@ -1477,8 +1568,9 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-qualifier>scopus-author-id</dc-qualifier>
           <label>Scopus Author ID</label>
           <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
+          <repeatable>true</repeatable>
           <required />
+          <hint />
         </field>
       </row>
       <row>
@@ -1486,10 +1578,11 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-schema>person</dc-schema>
           <dc-element>identifier</dc-element>
           <dc-qualifier>rid</dc-qualifier>
-          <label>Web of Science ResearchID</label>
+          <label>Researcher ID</label>
           <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
+          <repeatable>true</repeatable>
           <required />
+          <hint />
         </field>
       </row>
       <row>
@@ -1506,11 +1599,80 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
+          <label>Biography</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
           <dc-schema>crisrp</dc-schema>
           <dc-element>education</dc-element>
           <label>Education(s)</label>
           <input-type>inline-group</input-type>
           <repeatable>true</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>crisrp</dc-schema>
+          <dc-element>country</dc-element>
+          <label>Country</label>
+          <input-type value-pairs-name="common_iso_countries">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>crisrp</dc-schema>
+          <dc-element>qualification</dc-element>
+          <label>Qualification(s)</label>
+          <input-type>inline-group</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>person</dc-schema>
+          <dc-element>knowsLanguage</dc-element>
+          <label>Written Language(s)</label>
+          <input-type value-pairs-name="common_iso_languages">dropdown</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>cris</dc-schema>
+          <dc-element>policy</dc-element>
+          <dc-qualifier>eperson</dc-qualifier>
+          <label>Eperson Policy</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>cris</dc-schema>
+          <dc-element>policy</dc-element>
+          <dc-qualifier>group</dc-qualifier>
+          <label>Group Policy</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
           <required />
           <hint />
         </field>
@@ -1542,6 +1704,28 @@ it, please enter the types and the actual numbers or codes.</hint>
       <row>
         <field>
           <dc-schema>organization</dc-schema>
+          <dc-element>parentOrganization</dc-element>
+          <label>Parent Organisation</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>crisou</dc-schema>
+          <dc-element>director</dc-element>
+          <label>Director</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>organization</dc-schema>
           <dc-element>foundingDate</dc-element>
           <label>Established</label>
           <input-type>date</input-type>
@@ -1550,61 +1734,24 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint />
         </field>
       </row>
-      <!--<row>
+      <row>
+        <field>
+          <dc-schema>crisou</dc-schema>
+          <dc-element>boards</dc-element>
+          <label>Scientifics Board</label>
+          <input-type>onebox</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
         <field>
           <dc-schema>organization</dc-schema>
           <dc-element>identifier</dc-element>
           <label>Identifiers</label>
           <input-type value-pairs-name="orgunit_identifiers">qualdrop_value</input-type>
           <repeatable>true</repeatable>
-          <required />
-          <hint />
-        </field>
-      </row>-->
-      <row>
-        <field>
-          <dc-schema>organization</dc-schema>
-          <dc-element>identifier</dc-element>
-          <dc-qualifier>ror</dc-qualifier>
-          <label>ROR Id</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint />
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>organization</dc-schema>
-          <dc-element>identifier</dc-element>
-          <dc-qualifier>crossrefid</dc-qualifier>
-          <label>Crossref Id</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint />
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>organization</dc-schema>
-          <dc-element>identifier</dc-element>
-          <dc-qualifier>isni</dc-qualifier>
-          <label>ISNI Id</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint />
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>organization</dc-schema>
-          <dc-element>identifier</dc-element>
-          <dc-qualifier>rin</dc-qualifier>
-          <label>RingGold Id</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
           <required />
           <hint />
         </field>
@@ -1616,6 +1763,18 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-qualifier>url</dc-qualifier>
           <label>Website(s)</label>
           <input-type>link</input-type>
+          <repeatable>true</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <dc-qualifier>abstract</dc-qualifier>
+          <label>Description for OrgUnit</label>
+          <input-type>textarea</input-type>
           <repeatable>false</repeatable>
           <required />
           <hint />
@@ -1649,7 +1808,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-element>type</dc-element>
           <label>Type</label>
           <input-type value-pairs-name="orgunit_types">dropdown</input-type>
-          <repeatable>true</repeatable>
+          <repeatable>false</repeatable>
           <required>You must specify the organisation type</required>
           <hint />
         </field>
@@ -1916,6 +2075,18 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>relation</dc-element>
+          <dc-qualifier>project</dc-qualifier>
+          <label>Funded project</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
           <dc-schema>oairecerif</dc-schema>
           <dc-element>funder</dc-element>
           <label>Funder</label>
@@ -1925,13 +2096,79 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint />
         </field>
         <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>funder</dc-element>
-          <dc-qualifier>ror</dc-qualifier>
-          <label>ROR Funder</label>
+          <dc-schema>oairecerif</dc-schema>
+          <dc-element>fundingParent</dc-element>
+          <label>Program</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
           <required />
+          <hint>Link this funding with its upper level if applicable</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>crisfund</dc-schema>
+          <dc-element>award</dc-element>
+          <dc-qualifier>url</dc-qualifier>
+          <label>Award Url</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required>The url preferably on the funder website of the award notice</required>
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>crisfund</dc-schema>
+          <dc-element>award</dc-element>
+          <dc-qualifier>uri</dc-qualifier>
+          <label>Award URI</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required>The Award URI</required>
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>oairecerif</dc-schema>
+          <dc-element>oamandate</dc-element>
+          <label>OA Mandate</label>
+          <input-type value-pairs-name="truefalse">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+        <field>
+          <dc-schema>oairecerif</dc-schema>
+          <dc-element>oamandate</dc-element>
+          <dc-qualifier>url</dc-qualifier>
+          <label>OA Policy URL</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>oairecerif</dc-schema>
+          <dc-element>amount</dc-element>
+          <label>Amount</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+        <field>
+          <dc-schema>oairecerif</dc-schema>
+          <dc-element>amount</dc-element>
+          <dc-qualifier>currency</dc-qualifier>
+          <label>Currency</label>
+          <input-type value-pairs-name="currency">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
         </field>
       </row>
       <row>
@@ -1979,21 +2216,35 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
       <row>
         <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>description</dc-element>
+          <label>Funding Description</label>
+          <input-type>textarea</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
           <dc-schema>crisfund</dc-schema>
           <dc-element>investigators</dc-element>
           <label>Investigator(s)</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
+          <required />
+          <hint />
         </field>
       </row>
       <row>
         <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>affiliation</dc-element>
-          <dc-qualifier>orcid</dc-qualifier>
-          <label>Investigator(s) ORCID</label>
+          <dc-schema>crisfund</dc-schema>
+          <dc-element>coinvestigators</dc-element>
+          <label>Co-Investigator(s)</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
+          <required />
+          <hint />
         </field>
       </row>
       <row>
@@ -2003,59 +2254,18 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Lead Organization(s)</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
+          <required />
+          <hint />
         </field>
       </row>
       <row>
         <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>affiliation</dc-element>
-          <dc-qualifier>ror</dc-qualifier>
-          <label>Lead Organization(s) ROR</label>
+          <dc-schema>crisfund</dc-schema>
+          <dc-element>leadcoorganizations</dc-element>
+          <label>Lead Co-Organization(s)</label>
           <input-type>onebox</input-type>
           <repeatable>true</repeatable>
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>area</dc-element>
-          <dc-qualifier>inach</dc-qualifier>
-          <label>INACH Area</label>
-          <input-type value-pairs-name="inach_area">dropdown</input-type>
-          <repeatable>false</repeatable>
-          <hint />
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>area</dc-element>
-          <dc-qualifier>anid</dc-qualifier>
-          <label>ANID Area</label>
-          <input-type value-pairs-name="anid_area">dropdown</input-type>
-          <repeatable>false</repeatable>
-          <hint />
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>area</dc-element>
-          <dc-qualifier>ocde</dc-qualifier>
-          <label>OCDE Area</label>
-          <input-type value-pairs-name="ocde_area">dropdown</input-type>
-          <repeatable>false</repeatable>
-          <hint />
-        </field>
-      </row>
-      <row>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>area</dc-element>
-          <dc-qualifier>ods</dc-qualifier>
-          <label>ODS Area</label>
-          <input-type value-pairs-name="ods_area">dropdown</input-type>
-          <repeatable>true</repeatable>
+          <required />
           <hint />
         </field>
       </row>
@@ -2314,150 +2524,6 @@ it, please enter the types and the actual numbers or codes.</hint>
     </form>
   </form-definitions>
   <form-value-pairs>
-    <value-pairs value-pairs-name="inach_area">
-      <pair>
-        <displayed-value>Estado del ecosistema antartico</displayed-value>
-        <stored-value>linea1</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Umbrales antarticos</displayed-value>
-        <stored-value>linea2</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Estado del ecosistema antartico</displayed-value>
-        <stored-value>linea3</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Astronomia y Ciencia de la Tierra</displayed-value>
-        <stored-value>linea4</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Biotecnologia</displayed-value>
-        <stored-value>linea5</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Huellas humanas en la Antartica</displayed-value>
-        <stored-value>linea6</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Ciencias Sociales y Humanidades</displayed-value>
-        <stored-value>linea7</stored-value>
-      </pair>
-    </value-pairs>
-    <value-pairs value-pairs-name="anid_area">
-      <pair>
-        <displayed-value>Artes, Ciencias Sociales y Humanidades</displayed-value>
-        <stored-value>area1</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Ciencias Naturales y de la Vida</displayed-value>
-        <stored-value>area2</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Ciencias Exactas y de la Ingenieria</displayed-value>
-        <stored-value>area3</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Interdisciplina y Transdisciplina</displayed-value>
-        <stored-value>area4</stored-value>
-      </pair>
-    </value-pairs>
-    <value-pairs value-pairs-name="ocde_area">
-      <pair>
-        <displayed-value>Ciencias Naturales</displayed-value>
-        <stored-value>disciplina1</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Ingenieria y Tecnologia</displayed-value>
-        <stored-value>disciplina2</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Ciencias Medicas y de la Salud</displayed-value>
-        <stored-value>disciplina3</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Ciencias Agricolas</displayed-value>
-        <stored-value>disciplina4</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Ciencias Sociales</displayed-value>
-        <stored-value>disciplina5</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Humanidades</displayed-value>
-        <stored-value>disciplina6</stored-value>
-      </pair>
-    </value-pairs>
-    <value-pairs value-pairs-name="ods_area">
-      <pair>
-        <displayed-value>Objetivo 1: Fin de la pobreza</displayed-value>
-        <stored-value>obj1</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 2: Hambre cero</displayed-value>
-        <stored-value>obj2</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 3: Salud y bienestar</displayed-value>
-        <stored-value>obj3</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 4: Educacion de calidad</displayed-value>
-        <stored-value>obj4</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 5: Igualdad de genero</displayed-value>
-        <stored-value>obj5</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 6: Agua limpia y saneamiento</displayed-value>
-        <stored-value>obj6</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 7: Energia asequible y no contaminante</displayed-value>
-        <stored-value>obj7</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 8: Trabajo decente y crecimiento economico</displayed-value>
-        <stored-value>obj8</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 9: Industria, innovacion e infraestructuras</displayed-value>
-        <stored-value>obj9</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 10: Reduccion de las desigualdades</displayed-value>
-        <stored-value>obj10</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 11: Ciudades y comunidades sostenibles</displayed-value>
-        <stored-value>obj11</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 12: Produccion y consumo responsables</displayed-value>
-        <stored-value>obj12</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 13: Accion por el clima</displayed-value>
-        <stored-value>obj13</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 14: Vida submarina</displayed-value>
-        <stored-value>obj14</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 15: Vida de ecosistemas terrestres</displayed-value>
-        <stored-value>obj15</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 16: Paz, justicia e instituciones solidas</displayed-value>
-        <stored-value>obj16</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Objetivo 17: Alianzas para lograr los objetivos</displayed-value>
-        <stored-value>obj17</stored-value>
-      </pair>
-    </value-pairs>
     <value-pairs value-pairs-name="patent_types" dc-term="patent_types">
       <pair>
         <displayed-value>Use by owner</displayed-value>
@@ -2475,12 +2541,51 @@ it, please enter the types and the actual numbers or codes.</hint>
         <displayed-value>Other</displayed-value>
         <stored-value>Other</stored-value>
       </pair>
-      </value-pairs>
-    <!--Solo trabajaremos con DOI-->
+    </value-pairs>
     <value-pairs value-pairs-name="common_identifiers" dc-term="common_identifiers">
       <pair>
         <displayed-value>DOI</displayed-value>
         <stored-value>doi</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Scopus ID</displayed-value>
+        <stored-value>scopus</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>WOS ID</displayed-value>
+        <stored-value>isi</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Pubmed ID</displayed-value>
+        <stored-value>pmid</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>arXiv ID</displayed-value>
+        <stored-value>arxiv</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Other</displayed-value>
+        <stored-value>other</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>ISMN</displayed-value>
+        <stored-value>ismn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Gov't Doc #</displayed-value>
+        <stored-value>govdoc</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>URI</displayed-value>
+        <stored-value>uri</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>ISBN</displayed-value>
+        <stored-value>isbn</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ads Code</displayed-value>
+        <stored-value>adsbibcode</stored-value>
       </pair>
     </value-pairs>
     <value-pairs value-pairs-name="common_types" dc-term="common_types">
@@ -2799,19 +2904,130 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>musical notation</stored-value>
       </pair>
     </value-pairs>
-    <!--Divisas en las que ha pagado ANID a la fecha-->
     <value-pairs value-pairs-name="currency" dc-term="currency">
       <pair>
         <displayed-value>Euro</displayed-value>
         <stored-value>Euro</stored-value>
       </pair>
       <pair>
-        <displayed-value>Dolar</displayed-value>
-        <stored-value>Dolar</stored-value>
+        <displayed-value>Albanian lek</displayed-value>
+        <stored-value>Albanian lek</stored-value>
       </pair>
       <pair>
-        <displayed-value>Chilean pesos</displayed-value>
-        <stored-value>Chilean pesos</stored-value>
+        <displayed-value>Armenian dram</displayed-value>
+        <stored-value>Armenian dram</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Azerbaijan manat</displayed-value>
+        <stored-value>Azerbaijan manat</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Belarusian ruble</displayed-value>
+        <stored-value>Belarusian ruble</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bosnia and Herzegovina convertible mark</displayed-value>
+        <stored-value>Bosnia and Herzegovina convertible mark</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Bulgarian lev</displayed-value>
+        <stored-value>Bulgarian lev</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Croatian kuna</displayed-value>
+        <stored-value>Croatian kuna</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Czech koruna</displayed-value>
+        <stored-value>Czech koruna</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Danish krone</displayed-value>
+        <stored-value>Danish krone</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Faroese krona</displayed-value>
+        <stored-value>Faroese krona</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Georgian lari</displayed-value>
+        <stored-value>Georgian lari</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Gibraltar pound</displayed-value>
+        <stored-value>Gibraltar pound</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Guernsey pound</displayed-value>
+        <stored-value>Guernsey pound</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Hungarian forint</displayed-value>
+        <stored-value>Hungarian forint</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Icelandic krona</displayed-value>
+        <stored-value>Icelandic krona</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Manx pound</displayed-value>
+        <stored-value>Manx pound</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Jersey pound</displayed-value>
+        <stored-value>Jersey pound</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Kazakhstani tenge</displayed-value>
+        <stored-value>Kazakhstani tenge</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Moldovan leu</displayed-value>
+        <stored-value>Moldovan leu</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Macedonian denar</displayed-value>
+        <stored-value>Macedonian denar</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Norwegian krone</displayed-value>
+        <stored-value>Norwegian krone</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Polish zloty</displayed-value>
+        <stored-value>Polish zloty</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Romanian leu</displayed-value>
+        <stored-value>Romanian leu</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Russian ruble</displayed-value>
+        <stored-value>Russian ruble</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Serbian dinar</displayed-value>
+        <stored-value>Serbian dinar</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Swedish krona</displayed-value>
+        <stored-value>Swedish krona</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Swiss franc</displayed-value>
+        <stored-value>Swiss franc</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Turkish lira</displayed-value>
+        <stored-value>Turkish lira</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Ukrainian hryvnia</displayed-value>
+        <stored-value>Ukrainian hryvnia</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Pound sterling</displayed-value>
+        <stored-value>Pound sterling</stored-value>
       </pair>
     </value-pairs>
     <value-pairs value-pairs-name="gender" dc-term="gender">
@@ -2828,7 +3044,6 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>n/a</stored-value>
       </pair>
     </value-pairs>
-    <!--Solo trabajaremos con identificadores disponibles en ROR-->
     <value-pairs value-pairs-name="orgunit_identifiers" dc-term="orgunit_identifiers">
       <pair>
         <displayed-value>CrossRef Funder ID</displayed-value>
@@ -2842,6 +3057,18 @@ it, please enter the types and the actual numbers or codes.</hint>
         <displayed-value>International Standard Name Identifier</displayed-value>
         <stored-value>isni</stored-value>
       </pair>
+      <pair>
+        <displayed-value>Ringgold identifier</displayed-value>
+        <stored-value>rin</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Legal Entity Identifier</displayed-value>
+        <stored-value>lei</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Generic ID</displayed-value>
+        <stored-value />
+      </pair>
     </value-pairs>
     <value-pairs value-pairs-name="truefalse" dc-term="truefalse">
       <pair>
@@ -2853,43 +3080,62 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>false</stored-value>
       </pair>
     </value-pairs>
-    <!--Tipos de organizacion segun ROR-->
     <value-pairs value-pairs-name="orgunit_types" dc-term="orgunit_types">
       <pair>
         <displayed-value>Unspecified</displayed-value>
         <stored-value />
       </pair>
       <pair>
-        <displayed-value>Education</displayed-value>
-        <stored-value>Education</stored-value>
+        <displayed-value>Academic Institute</displayed-value>
+        <stored-value>Academic Institute</stored-value>
       </pair>
       <pair>
-        <displayed-value>Healthcare</displayed-value>
-        <stored-value>Healthcare</stored-value>
+        <displayed-value>University</displayed-value>
+        <stored-value>University</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>University College</displayed-value>
+        <stored-value>University College</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Research Institute</displayed-value>
+        <stored-value>Research Institute</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Strategic Research Institute</displayed-value>
+        <stored-value>Strategic Research Insitute</stored-value>
       </pair>
       <pair>
         <displayed-value>Company</displayed-value>
         <stored-value>Company</stored-value>
       </pair>
       <pair>
-        <displayed-value>Archive</displayed-value>
-        <stored-value>Archive</stored-value>
-      </pair>
-      <pair>
-        <displayed-value>Nonprofit</displayed-value>
-        <stored-value>Nonprofit</stored-value>
+        <displayed-value>SME</displayed-value>
+        <stored-value>SME</stored-value>
       </pair>
       <pair>
         <displayed-value>Government</displayed-value>
         <stored-value>Government</stored-value>
       </pair>
       <pair>
-        <displayed-value>Facility</displayed-value>
-        <stored-value>Facility</stored-value>
+        <displayed-value>Higher Education</displayed-value>
+        <stored-value>Higher Education</stored-value>
       </pair>
       <pair>
-        <displayed-value>Funder</displayed-value>
-        <stored-value>Funder</stored-value>
+        <displayed-value>Private non-profit</displayed-value>
+        <stored-value>Private non-profit</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Intergovernmental</displayed-value>
+        <stored-value>Intergovernmental</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Charity</displayed-value>
+        <stored-value>Charity</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>National Health Service</displayed-value>
+        <stored-value>National Health Service</stored-value>
       </pair>
     </value-pairs>
     <value-pairs value-pairs-name="project_types" dc-term="project_types">
@@ -2910,15 +3156,18 @@ it, please enter the types and the actual numbers or codes.</hint>
         <stored-value>experimental development</stored-value>
       </pair>
     </value-pairs>
-    <!--Tipos de funding segun ORCID-->
     <value-pairs value-pairs-name="funding_types" dc-term="funding_types">
       <pair>
         <displayed-value>Unspecified</displayed-value>
         <stored-value />
       </pair>
       <pair>
-        <displayed-value>Salary award</displayed-value>
-        <stored-value>Salary award</stored-value>
+        <displayed-value>Gift</displayed-value>
+        <stored-value>Gift</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Internal Funding</displayed-value>
+        <stored-value>Internal Funding</stored-value>
       </pair>
       <pair>
         <displayed-value>Contract</displayed-value>

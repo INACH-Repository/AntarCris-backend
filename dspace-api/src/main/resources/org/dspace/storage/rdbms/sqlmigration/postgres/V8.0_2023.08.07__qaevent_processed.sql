@@ -6,6 +6,9 @@
 -- http://www.dspace.org/license/
 --
 
+-----------------------------------------------------------------------------------
+-- Create QA Event Processed table.
+-----------------------------------------------------------------------------------
 CREATE TABLE qaevent_processed (
   qaevent_id VARCHAR(255) NOT NULL,
   qaevent_timestamp TIMESTAMP NULL,
@@ -16,4 +19,5 @@ CREATE TABLE qaevent_processed (
   CONSTRAINT item_uuid_fkey FOREIGN KEY (item_uuid) REFERENCES item (uuid)
 );
 
+DROP INDEX IF EXISTS item_uuid_idx;
 CREATE INDEX item_uuid_idx ON qaevent_processed(item_uuid);

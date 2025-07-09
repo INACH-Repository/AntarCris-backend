@@ -8,6 +8,7 @@
 package org.dspace.app.rest.model;
 
 import org.dspace.app.rest.RestResourceController;
+import org.dspace.app.rest.model.wrapper.AuthenticationToken;
 
 /**
  * The authentication token REST HAL Resource. The HAL Resource wraps the REST Resource
@@ -19,6 +20,8 @@ public class AuthenticationTokenRest extends RestAddressableModel {
     public static final String CATEGORY = RestAddressableModel.AUTHENTICATION;
 
     private String token;
+
+    private String type;
 
     @Override
     public String getCategory() {
@@ -32,7 +35,7 @@ public class AuthenticationTokenRest extends RestAddressableModel {
 
     @Override
     public String getType() {
-        return NAME;
+        return type;
     }
 
     @Override
@@ -46,5 +49,13 @@ public class AuthenticationTokenRest extends RestAddressableModel {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public boolean isShortLivedToken() {
+        return AuthenticationToken.SHORTLIVEDTOKEN_TYPE.equals(type);
     }
 }

@@ -107,7 +107,7 @@ public class SuggestionRest extends BaseObjectRest<String> {
         this.metadata = metadata;
     }
 
-    /** 
+    /**
      * inner class to encapsulate score & notes
      * and map {@link SuggestionEvidence}
      * */

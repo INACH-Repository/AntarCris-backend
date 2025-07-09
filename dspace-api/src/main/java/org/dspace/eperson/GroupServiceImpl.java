@@ -432,6 +432,15 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
         return groupDAO.findByName(context, name);
     }
 
+    @Override
+    public Group findByNamePrefix(Context context, String namePrefix) throws SQLException {
+        if (namePrefix == null) {
+            return null;
+        }
+
+        return groupDAO.findByNamePrefix(context, namePrefix);
+    }
+
     /**
      * DEPRECATED: Please use {@code findAll(Context context, List<MetadataField> metadataSortFields)} instead
      */
@@ -907,6 +916,10 @@ public class GroupServiceImpl extends DSpaceObjectServiceImpl<Group> implements 
     @Override
     public String getName(Group dso) {
         return dso.getName();
+    }
+
+    public boolean exists(Context context, UUID id) throws SQLException {
+        return this.groupDAO.exists(context, Group.class, id);
     }
 
     @Override

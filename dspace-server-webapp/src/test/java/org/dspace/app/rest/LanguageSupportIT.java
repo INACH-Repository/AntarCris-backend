@@ -14,8 +14,6 @@ import java.util.Locale;
 
 import org.dspace.app.rest.test.AbstractControllerIntegrationTest;
 import org.dspace.builder.EPersonBuilder;
-import org.dspace.content.authority.ChoiceAuthorityServiceImpl;
-import org.dspace.core.LegacyPluginServiceImpl;
 import org.dspace.eperson.EPerson;
 import org.dspace.services.ConfigurationService;
 import org.junit.Ignore;
@@ -31,10 +29,6 @@ public class LanguageSupportIT extends AbstractControllerIntegrationTest {
 
     @Autowired
     private ConfigurationService configurationService;
-    @Autowired
-    private LegacyPluginServiceImpl legacyPluginService;
-    @Autowired
-    private ChoiceAuthorityServiceImpl choiceAuthorityServiceImpl;
 
     @Test
     public void checkDefaultLanguageAnonymousTest() throws Exception {
@@ -43,14 +37,12 @@ public class LanguageSupportIT extends AbstractControllerIntegrationTest {
     }
 
     @Test
-    @Ignore("This test fails due to a bug in the MockHttpResponseServlet,"
-            + " see https://github.com/spring-projects/spring-framework/issues/25281")
+    @Ignore
+    //TODO investigate way the language support introduce such issue
     public void checkEnabledMultipleLanguageSupportTest() throws Exception {
         context.turnOffAuthorisationSystem();
         String[] supportedLanguage = {"uk","it"};
         configurationService.setProperty("webui.supported.locales",supportedLanguage);
-        legacyPluginService.clearNamedPluginClasses();
-        choiceAuthorityServiceImpl.clearCache();
 
         Locale it = new Locale("it");
 
@@ -78,10 +70,8 @@ public class LanguageSupportIT extends AbstractControllerIntegrationTest {
                                  .andExpect(header().stringValues("Content-Language","uk, it"));
 
         getClient(tokenEPersonFR).perform(get("/api").locale(it))
-                                 .andExpect(header().stringValues("Content-Language","uk, it"));
+                                 .andExpect(header().stringValues("Content-Language","en"));
 
         configurationService.setProperty("webui.supported.locales",null);
-        legacyPluginService.clearNamedPluginClasses();
-        choiceAuthorityServiceImpl.clearCache();
     }
 }

@@ -26,5 +26,17 @@ public enum OrcidEntitySyncPreference {
      * Preference to be set to enable the synchronization with ORCID of all items
      * relating to the specific entity.
      */
-    ALL
+    ALL,
+
+    /**
+     * Preference to be set to enable the synchronization with ORCID of all selected
+     * items.
+     */
+    MY_SELECTED,
+
+    /**
+     * Preference to be set to enable the synchronization with ORCID of all owned
+     * items.
+     */
+    MINE;
 }

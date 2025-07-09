@@ -19,6 +19,7 @@ import static org.dspace.profile.OrcidEntitySyncPreference.DISABLED;
 
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,17 +32,19 @@ import org.dspace.content.MetadataValue;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Context;
 import org.dspace.discovery.DiscoverQuery;
-import org.dspace.discovery.SearchService;
-import org.dspace.discovery.SearchServiceException;
+import org.dspace.discovery.DiscoverResultItemIterator;
 import org.dspace.discovery.indexobject.IndexableItem;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.service.EPersonService;
+import org.dspace.orcid.OrcidQueue;
 import org.dspace.orcid.OrcidToken;
 import org.dspace.orcid.client.OrcidClient;
 import org.dspace.orcid.model.OrcidEntityType;
 import org.dspace.orcid.model.OrcidTokenResponseDTO;
+import org.dspace.orcid.service.OrcidQueueService;
 import org.dspace.orcid.service.OrcidSynchronizationService;
 import org.dspace.orcid.service.OrcidTokenService;
+import org.dspace.orcid.service.OrcidWebhookService;
 import org.dspace.profile.OrcidEntitySyncPreference;
 import org.dspace.profile.OrcidProfileDisconnectionMode;
 import org.dspace.profile.OrcidProfileSyncPreference;
@@ -65,13 +68,16 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
     private ItemService itemService;
 
     @Autowired
+    private OrcidQueueService orcidQueueService;
+
+    @Autowired
     private ConfigurationService configurationService;
 
     @Autowired
-    private EPersonService ePersonService;
+    private OrcidWebhookService orcidWebhookService;
 
     @Autowired
-    private SearchService searchService;
+    private EPersonService ePersonService;
 
     @Autowired
     private OrcidTokenService orcidTokenService;
@@ -81,6 +87,14 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
 
     @Autowired
     private OrcidClient orcidClient;
+
+    public OrcidClient getOrcidClient() {
+        return orcidClient;
+    }
+
+    public void setOrcidClient(OrcidClient orcidClient) {
+        this.orcidClient = orcidClient;
+    }
 
     @Override
     public void linkProfile(Context context, Item profile, OrcidTokenResponseDTO token) throws SQLException {
@@ -121,6 +135,10 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
     @Override
     public void unlinkProfile(Context context, Item profile) throws SQLException {
 
+        if (orcidWebhookService.isProfileRegistered(profile)) {
+            orcidWebhookService.unregister(context, profile);
+        }
+
         clearOrcidProfileMetadata(context, profile);
 
         clearSynchronizationSettings(context, profile);
@@ -128,6 +146,11 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
         clearOrcidToken(context, profile);
 
         updateItem(context, profile);
+
+        List<OrcidQueue> queueRecords = orcidQueueService.findByProfileItemId(context, profile.getID());
+        for (OrcidQueue queueRecord : queueRecords) {
+            orcidQueueService.delete(context, queueRecord);
+        }
 
     }
 
@@ -254,6 +277,20 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
         return OrcidProfileDisconnectionMode.fromString(value);
     }
 
+    @Override
+    public Iterator<Item> findProfilesByOrcid(Context context, String orcid) {
+        DiscoverQuery discoverQuery = new DiscoverQuery();
+        discoverQuery.setDSpaceObjectFilter(IndexableItem.TYPE);
+        discoverQuery.addFilterQueries("search.entitytype:" + researcherProfileService.getProfileType());
+        discoverQuery.addFilterQueries("person.identifier.orcid:" + orcid);
+        return new DiscoverResultItemIterator(context, discoverQuery);
+    }
+
+    @Override
+    public Iterator<Item> findProfilesWithOrcid(Context context) {
+        return findProfilesByOrcid(context, "*");
+    }
+
     private void setAccessToken(Context context, Item profile, EPerson ePerson, String accessToken) {
         OrcidToken orcidToken = orcidTokenService.findByEPerson(context, ePerson);
         if (orcidToken == null) {
@@ -351,21 +388,6 @@ public class OrcidSynchronizationServiceImpl implements OrcidSynchronizationServ
             ePersonService.update(context, ePerson);
         } catch (AuthorizeException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public List<Item> findProfilesByOrcid(Context context, String orcid) {
-        DiscoverQuery discoverQuery = new DiscoverQuery();
-        discoverQuery.setDSpaceObjectFilter(IndexableItem.TYPE);
-        discoverQuery.addFilterQueries("search.entitytype:" + researcherProfileService.getProfileType());
-        discoverQuery.addFilterQueries("person.identifier.orcid:" + orcid);
-        try {
-            return searchService.search(context, discoverQuery).getIndexableObjects().stream()
-                .map(object -> ((IndexableItem) object).getIndexedObject())
-                .collect(Collectors.toList());
-        } catch (SearchServiceException ex) {
-            throw new RuntimeException(ex);
         }
     }
 }

@@ -44,7 +44,9 @@ import org.dspace.content.authority.service.ChoiceAuthorityService;
 import org.dspace.content.authority.service.MetadataAuthorityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.content.service.WorkspaceItemService;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.core.CrisConstants;
 import org.dspace.core.LogHelper;
 import org.dspace.discovery.FullTextContentStreams;
 import org.dspace.discovery.SearchUtils;
@@ -58,6 +60,7 @@ import org.dspace.discovery.configuration.DiscoverySearchFilter;
 import org.dspace.discovery.configuration.DiscoverySearchFilterFacet;
 import org.dspace.discovery.configuration.DiscoverySortConfiguration;
 import org.dspace.discovery.configuration.DiscoverySortFieldConfiguration;
+import org.dspace.discovery.configuration.GraphDiscoverSearchFilterFacet;
 import org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration;
 import org.dspace.discovery.indexobject.factory.ItemIndexFactory;
 import org.dspace.discovery.indexobject.factory.WorkflowItemIndexFactory;
@@ -67,7 +70,6 @@ import org.dspace.handle.service.HandleService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.util.MultiFormatDateParser;
 import org.dspace.util.SolrUtils;
-import org.dspace.versioning.service.VersionHistoryService;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.dspace.xmlworkflow.storedcomponents.service.XmlWorkflowItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,8 +106,6 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
     protected WorkflowItemIndexFactory workflowItemIndexFactory;
     @Autowired
     protected WorkspaceItemIndexFactory workspaceItemIndexFactory;
-    @Autowired
-    protected VersionHistoryService versionHistoryService;
 
 
     @Override
@@ -335,12 +335,27 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                     continue;
                 }
 
+                if (StringUtils.equals(value, CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE)) {
+                    if (toProjectionFields.contains(field) || toProjectionFields
+                            .contains(unqualifiedField + "." + Item.ANY)) {
+                        doc.addField(
+                                field + "_stored",
+                                value + STORE_SEPARATOR + "null" // preferedLabel
+                                        + STORE_SEPARATOR
+                                        + "null" // variants
+                                        + STORE_SEPARATOR + "null" // authority
+                                        + STORE_SEPARATOR + meta.getLanguage());
+                    }
+                    continue;
+                }
+
                 String authority = null;
                 String preferedLabel = null;
                 List<String> variants = null;
                 boolean isAuthorityControlled = metadataAuthorityService
-                        .isAuthorityControlled(metadataField);
-
+                        .isAuthorityAllowed(metadataField, item.getType(), collection);
+                boolean hasChoiceAuthority = choiceAuthorityService.isChoicesConfigured(metadataField.toString(),
+                        item.getType(), collection);
                 int minConfidence = isAuthorityControlled ? metadataAuthorityService
                         .getMinConfidence(metadataField) : Choices.CF_ACCEPTED;
 
@@ -365,18 +380,23 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                 DSpaceServicesFactory
                                         .getInstance()
                                         .getConfigurationService()
-                                        .getPropertyAsType("discovery.index.authority.ignore-prefered." + field,
+                                        .getPropertyAsType("discovery.index.authority.ignore-preferred." + field,
                                                 DSpaceServicesFactory
                                                         .getInstance()
                                                         .getConfigurationService()
                                                         .getPropertyAsType(
-                                                                "discovery.index.authority.ignore-prefered",
+                                                                "discovery.index.authority.ignore-preferred",
                                                                 Boolean.FALSE),
                                                 true);
 
-                        if (!ignorePrefered && !authority.startsWith(AuthorityValueService.GENERATE)) {
+                        if (
+                                !ignorePrefered &&
+                                hasChoiceAuthority &&
+                                !authority.startsWith(AuthorityValueService.GENERATE)
+                        ) {
                             try {
-                                preferedLabel = choiceAuthorityService.getLabel(meta, collection, meta.getLanguage());
+                                preferedLabel = choiceAuthorityService.getLabel(meta, Constants.ITEM, collection,
+                                        meta.getLanguage());
                             } catch (Exception e) {
                                 log.warn("Failed to get preferred label for " + field, e);
                             }
@@ -393,10 +413,10 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                                                         .getPropertyAsType("discovery.index.authority.ignore-variants",
                                                                 Boolean.FALSE),
                                                 true);
-                        if (!ignoreVariants) {
+                        if (!ignoreVariants && hasChoiceAuthority) {
                             try {
                                 variants = choiceAuthorityService
-                                    .getVariants(meta, collection);
+                                    .getVariants(meta, Constants.ITEM, collection);
                             } catch (Exception e) {
                                 log.warn("Failed to get variants for " + field, e);
                             }
@@ -484,6 +504,130 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                         }
                         // if searchFilter is of type "facet", delegate to indexIfFilterTypeFacet method
                         if (searchFilter.getFilterType().equals(DiscoverySearchFilterFacet.FILTER_TYPE_FACET)) {
+                            if (searchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_TEXT)) {
+                                //Add a special filter
+                                //We use a separator to split up the lowercase and regular case, this is needed to
+                                // get our filters in regular case
+                                //Solr has issues with facet prefix and cases
+                                if (authority != null) {
+                                    String facetValue = preferedLabel != null ? preferedLabel : value;
+                                    doc.addField(searchFilter.getIndexFieldName() + "_filter", facetValue
+                                            .toLowerCase() + separator + facetValue + SearchUtils.AUTHORITY_SEPARATOR
+                                            + authority);
+                                } else {
+                                    doc.addField(searchFilter.getIndexFieldName() + "_filter",
+                                            value.toLowerCase() + separator + value);
+                                }
+                            } else if (searchFilter.getType().equals(DiscoveryConfigurationParameters.TYPE_DATE)) {
+                                if (date != null) {
+                                    String indexField = searchFilter.getIndexFieldName() + ".year";
+                                    String yearUTC = DateFormatUtils.formatUTC(date, "yyyy");
+                                    doc.addField(searchFilter.getIndexFieldName() + "_keyword", yearUTC);
+                                    // add the year to the autocomplete index
+                                    doc.addField(searchFilter.getIndexFieldName() + "_ac", yearUTC);
+                                    doc.addField(indexField, yearUTC);
+
+                                    if (yearUTC.startsWith("0")) {
+                                        doc.addField(
+                                                searchFilter.getIndexFieldName()
+                                                        + "_keyword",
+                                                yearUTC.replaceFirst("0*", ""));
+                                        // add date without starting zeros for autocomplete e filtering
+                                        doc.addField(
+                                                searchFilter.getIndexFieldName()
+                                                        + "_ac",
+                                                yearUTC.replaceFirst("0*", ""));
+                                        doc.addField(
+                                                searchFilter.getIndexFieldName()
+                                                        + "_ac",
+                                                value.replaceFirst("0*", ""));
+                                        doc.addField(
+                                                searchFilter.getIndexFieldName()
+                                                        + "_keyword",
+                                                value.replaceFirst("0*", ""));
+                                    }
+
+                                    //Also save a sort value of this year, this is required for determining the upper
+                                    // & lower bound year of our facet
+                                    if (doc.getField(indexField + "_sort") == null) {
+                                        //We can only add one year so take the first one
+                                        doc.addField(indexField + "_sort", yearUTC);
+                                    }
+                                }
+                            } else if (searchFilter.getType()
+                                    .equals(DiscoveryConfigurationParameters.TYPE_HIERARCHICAL)) {
+                                HierarchicalSidebarFacetConfiguration hierarchicalSidebarFacetConfiguration =
+                                        (HierarchicalSidebarFacetConfiguration) searchFilter;
+                                String[] subValues = value.split(hierarchicalSidebarFacetConfiguration.getSplitter());
+                                if (hierarchicalSidebarFacetConfiguration.isOnlyLastNodeRelevant()) {
+                                    subValues = (String[]) ArrayUtils.subarray(subValues, subValues.length - 1,
+                                            subValues.length);
+                                } else if (hierarchicalSidebarFacetConfiguration
+                                        .isSkipFirstNodeLevel() && 1 < subValues.length) {
+                                    //Remove the first element of our array
+                                    subValues = (String[]) ArrayUtils.subarray(subValues, 1, subValues.length);
+                                }
+                                for (int i = 0; i < subValues.length; i++) {
+                                    StringBuilder valueBuilder = new StringBuilder();
+                                    for (int j = 0; j <= i; j++) {
+                                        valueBuilder.append(subValues[j]);
+                                        if (j < i) {
+                                            valueBuilder.append(hierarchicalSidebarFacetConfiguration.getSplitter());
+                                        }
+                                    }
+
+                                    String indexValue = valueBuilder.toString().trim();
+                                    doc.addField(searchFilter.getIndexFieldName() + "_tax_" + i + "_filter",
+                                            indexValue.toLowerCase() + separator + indexValue);
+                                    //We add the field x times that it has occurred
+                                    for (int j = i; j < subValues.length; j++) {
+                                        doc.addField(searchFilter.getIndexFieldName() + "_filter",
+                                                indexValue.toLowerCase() + separator + indexValue);
+                                        doc.addField(searchFilter.getIndexFieldName() + "_keyword", indexValue);
+                                    }
+                                }
+                            } else if (StringUtils.startsWith(searchFilter.getType(),
+                                    GraphDiscoverSearchFilterFacet.TYPE_PREFIX)) {
+                                GraphDiscoverSearchFilterFacet graphFacet =
+                                        (GraphDiscoverSearchFilterFacet) searchFilter;
+                                if (graphFacet.isDate() && StringUtils.isNotBlank(graphFacet.getSplitter())) {
+                                    throw new IllegalStateException("Invalid configuration for the graph facet "
+                                            + graphFacet.getIndexFieldName()
+                                            + " it is configured as a date but the splitter is not empty");
+                                }
+                                String facetValue = value;
+                                if (graphFacet.isDate()) {
+                                    Date parsedValue = MultiFormatDateParser.parse(value);
+                                    if (parsedValue != null) {
+                                        facetValue = DateFormatUtils.formatUTC(parsedValue, "yyyy");
+                                    }
+                                } else if (StringUtils.isNotBlank(graphFacet.getSplitter())) {
+                                    String[] split = value.split(graphFacet.getSplitter());
+                                    facetValue = split[0];
+                                    if (graphFacet.getMaxLevels() > 0) {
+                                        for (int idx = 1; idx < split.length
+                                                && idx < graphFacet.getMaxLevels(); idx++) {
+                                            if (graphFacet.isOnlyLastNodeRelevant()) {
+                                                facetValue = split[idx];
+                                            } else {
+                                                facetValue += graphFacet.getSplitter() + split[idx];
+                                            }
+                                        }
+                                    }
+                                }
+                                if (authority != null) {
+                                    doc.addField(searchFilter.getIndexFieldName() + "_filter", facetValue
+                                            .toLowerCase());
+                                    doc.addField(searchFilter.getIndexFieldName() + "_statfilter", facetValue
+                                            .toLowerCase() + separator + facetValue + SearchUtils.AUTHORITY_SEPARATOR
+                                            + authority);
+                                } else {
+                                    doc.addField(searchFilter.getIndexFieldName() + "_filter",
+                                            facetValue.toLowerCase());
+                                    doc.addField(searchFilter.getIndexFieldName() + "_statfilter",
+                                            facetValue.toLowerCase() + separator + facetValue);
+                                }
+                            }
                             indexIfFilterTypeFacet(doc, searchFilter, value, date,
                                                    authority, preferedLabel, separator);
                         }
@@ -533,6 +677,11 @@ public class ItemIndexFactoryImpl extends DSpaceObjectIndexFactoryImpl<Indexable
                 if (authority != null) {
                     doc.addField(field + "_authority", authority);
                 }
+
+                if (meta.getAuthority() != null) {
+                    doc.addField(field + "_allauthority", meta.getAuthority());
+                }
+
                 if (toProjectionFields.contains(field) || toProjectionFields
                         .contains(unqualifiedField + "." + Item.ANY)) {
                     StringBuffer variantsToStore = new StringBuffer();

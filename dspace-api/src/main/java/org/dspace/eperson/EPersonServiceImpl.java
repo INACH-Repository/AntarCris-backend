@@ -7,8 +7,6 @@
  */
 package org.dspace.eperson;
 
-import static org.dspace.content.Item.ANY;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -37,6 +35,7 @@ import org.dspace.content.QAEventProcessed;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
+import org.dspace.content.service.MetadataSchemaService;
 import org.dspace.content.service.WorkspaceItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -106,6 +105,8 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
     protected ClaimedTaskService claimedTaskService;
     @Autowired(required = true)
     protected ConfigurationService configurationService;
+    @Autowired(required = true)
+    protected MetadataSchemaService metadataSchemaService;
     @Autowired
     protected OrcidTokenService orcidTokenService;
     @Autowired
@@ -706,7 +707,7 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
 
     @Override
     public EPerson findByProfileItem(Context context, Item profile) throws SQLException {
-        List<MetadataValue> owners = itemService.getMetadata(profile, "dspace", "object", "owner", ANY);
+        List<MetadataValue> owners = getDSpaceObjectOwnerMetadataValues(profile);
         if (CollectionUtils.isEmpty(owners)) {
             return null;
         }
@@ -714,7 +715,27 @@ public class EPersonServiceImpl extends DSpaceObjectServiceImpl<EPerson> impleme
     }
 
     @Override
+    public boolean isOwnerOfItem(EPerson user, Item item) {
+
+        if (user == null) {
+            return false;
+        }
+
+        return getDSpaceObjectOwnerMetadataValues(item).stream()
+            .anyMatch(metadataValue -> user.getID().toString().equals(metadataValue.getAuthority()));
+
+    }
+
+    private List<MetadataValue> getDSpaceObjectOwnerMetadataValues(Item item) {
+        return itemService.getMetadata(item, "dspace", "object", "owner", Item.ANY);
+    }
+
+    @Override
     public String getName(EPerson dso) {
         return dso.getName();
+    }
+
+    public boolean exists(Context context, UUID id) throws SQLException {
+        return this.ePersonDAO.exists(context, EPerson.class, id);
     }
 }

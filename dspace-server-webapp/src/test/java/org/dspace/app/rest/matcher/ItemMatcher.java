@@ -56,9 +56,11 @@ public class ItemMatcher {
                 "mappedCollections[]",
                 "owningCollection",
                 "version",
+                "metrics",
                 "relationships[]",
                 "templateItemOf",
-                "thumbnail"
+                "thumbnail",
+                "submitter"
         );
     }
 
@@ -75,8 +77,10 @@ public class ItemMatcher {
                 "relationships",
                 "self",
                 "version",
+                "metrics",
                 "templateItemOf",
-                "thumbnail"
+                "thumbnail",
+                "submitter"
         );
     }
 
@@ -89,7 +93,8 @@ public class ItemMatcher {
             hasJsonPath("$.discoverable", is(item.isDiscoverable())),
             hasJsonPath("$.withdrawn", is(item.isWithdrawn())),
             hasJsonPath("$.lastModified", is(notNullValue())),
-            hasJsonPath("$.type", is("item"))
+            hasJsonPath("$.type", is("item")),
+            hasJsonPath("$.uniqueType", is("core.item"))
         );
     }
 

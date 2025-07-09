@@ -52,7 +52,7 @@ public class HarvestedCollectionConverter implements DSpaceConverter<HarvestedCo
             harvestedCollectionRest.setOaiSource(obj.getOaiSource());
             harvestedCollectionRest.setHarvestMessage(obj.getHarvestMessage());
             harvestedCollectionRest.setHarvestStartTime(obj.getHarvestStartTime());
-            harvestedCollectionRest.setLastHarvested(obj.getHarvestDate());
+            harvestedCollectionRest.setLastHarvested(obj.getLastHarvestDate());
         } else {
             harvestedCollectionRest.setHarvestType(HarvestTypeEnum.NONE);
         }

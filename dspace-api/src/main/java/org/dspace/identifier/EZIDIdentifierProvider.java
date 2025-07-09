@@ -264,10 +264,12 @@ public class EZIDIdentifierProvider
 
         // Good response?
         if (HttpURLConnection.HTTP_CREATED != response.getHttpStatusCode()) {
-            log.error("EZID server responded:  {} {}: {}",
-                    response::getHttpStatusCode,
-                    response::getHttpReasonPhrase,
-                    response::getEZIDStatusValue);
+            log.error(
+                "EZID server responded:  {} {}: {}",
+                response::getHttpStatusCode,
+                response::getHttpReasonPhrase,
+                response::getEZIDStatusValue
+            );
             throw new IdentifierException("DOI not created:  "
                                               + response.getHttpReasonPhrase()
                                               + ":  "
@@ -298,10 +300,10 @@ public class EZIDIdentifierProvider
 
         Iterator<Item> found;
         try {
-            found = itemService.findByMetadataField(context,
+            found = itemService.findArchivedByMetadataField(context,
                                                     MD_SCHEMA, DOI_ELEMENT, DOI_QUALIFIER,
                                                     idToDOI(identifier));
-        } catch (IdentifierException | SQLException | AuthorizeException | IOException ex) {
+        } catch (IdentifierException | SQLException | AuthorizeException ex) {
             log.error(ex::getMessage);
             throw new IdentifierNotResolvableException(ex);
         }

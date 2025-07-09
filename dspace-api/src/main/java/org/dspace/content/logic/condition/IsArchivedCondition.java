@@ -30,7 +30,7 @@ public class IsArchivedCondition extends AbstractCondition {
      * @throws LogicalStatementException
      */
     @Override
-    public boolean getResult(Context context, Item item) throws LogicalStatementException {
+    public Boolean getResult(Context context, Item item) throws LogicalStatementException {
         log.debug("Result of isArchived is " + item.isArchived());
         return item.isArchived();
     }

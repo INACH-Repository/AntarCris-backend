@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.dspace.app.rest.Parameter;
 import org.dspace.app.rest.SearchRestMethod;
+import org.dspace.app.rest.converter.ConverterService;
 import org.dspace.app.rest.exception.RepositoryMethodNotImplementedException;
 import org.dspace.app.rest.model.StatisticsSupportRest;
 import org.dspace.app.rest.model.UsageReportRest;
@@ -40,15 +41,18 @@ public class StatisticsRestRepository extends DSpaceRestRepository<UsageReportRe
     @Autowired
     private UsageReportUtils usageReportUtils;
 
+    @Autowired
+    private ConverterService converterService;
+
     public StatisticsSupportRest getStatisticsSupport() {
         return new StatisticsSupportRest();
     }
 
     @Override
-    @PreAuthorize("hasPermission(#uuidObjectReportId, 'usagereport', 'READ')")
-    public UsageReportRest findOne(Context context, String uuidObjectReportId) {
-        UUID uuidObject = UUID.fromString(StringUtils.substringBefore(uuidObjectReportId, "_"));
-        String reportId = StringUtils.substringAfter(uuidObjectReportId, "_");
+    @PreAuthorize("hasPermission(#id, 'usagereport', 'READ')")
+    public UsageReportRest findOne(Context context, String id) {
+        UUID uuidObject = UUID.fromString(StringUtils.substringBefore(id, "_"));
+        String reportId = StringUtils.substringAfter(id, "_");
 
         UsageReportRest usageReportRest = null;
         try {
@@ -64,10 +68,12 @@ public class StatisticsRestRepository extends DSpaceRestRepository<UsageReportRe
         return converter.toRest(usageReportRest, utils.obtainProjection());
     }
 
-    @PreAuthorize("hasPermission(#uri, 'usagereportsearch', 'READ')")
+    @PreAuthorize("permitAll()")
     @SearchRestMethod(name = "object")
     public Page<UsageReportRest> findByObject(@Parameter(value = "uri", required = true) String uri,
-                                              Pageable pageable) {
+            @Parameter(value = "category") String category, Pageable pageable,
+                                              @Parameter(value = "startDate") String startDate,
+                                              @Parameter(value = "endDate") String endDate) {
         UUID uuid = UUID.fromString(StringUtils.substringAfterLast(uri, "/"));
         List<UsageReportRest> usageReportsOfItem = null;
         try {
@@ -76,7 +82,10 @@ public class StatisticsRestRepository extends DSpaceRestRepository<UsageReportRe
             if (dso == null) {
                 throw new ResourceNotFoundException("No DSO found with uuid: " + uuid);
             }
-            usageReportsOfItem = usageReportUtils.getUsageReportsOfDSO(context, dso);
+            if (category != null && !usageReportUtils.categoryExists(dso, category)) {
+                throw new IllegalArgumentException("The specified category doesn't exists: " + category);
+            }
+            usageReportsOfItem = usageReportUtils.getUsageReportsOfDSO(context, dso, category, startDate, endDate);
         } catch (SQLException | ParseException | SolrServerException | IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }

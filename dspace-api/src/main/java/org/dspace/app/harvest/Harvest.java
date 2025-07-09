@@ -7,20 +7,24 @@
  */
 package org.dspace.app.harvest;
 
-import java.io.IOException;
+import static org.apache.commons.lang3.BooleanUtils.toBoolean;
+
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.StringUtils;
-import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.CollectionService;
+import org.dspace.content.service.CommunityService;
 import org.dspace.content.service.ItemService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -32,20 +36,27 @@ import org.dspace.harvest.HarvestedCollection;
 import org.dspace.harvest.HarvestingException;
 import org.dspace.harvest.OAIHarvester;
 import org.dspace.harvest.factory.HarvestServiceFactory;
+import org.dspace.harvest.model.OAIHarvesterOptions;
 import org.dspace.harvest.service.HarvestedCollectionService;
 import org.dspace.scripts.DSpaceRunnable;
 import org.dspace.utils.DSpace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test class for harvested collections.
  *
  * @author Alexey Maslov
  */
-public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration> {
+public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration<Harvest>> {
 
-    private HarvestedCollectionService harvestedCollectionService;
-    protected EPersonService ePersonService;
-    private CollectionService collectionService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Harvest.class);
+
+    public static final String LOG_PREFIX = "PROCESSINGDATA ";
+
+    public static final String LOG_DELIMITER = "|";
+
+    protected Context context;
 
     private boolean help;
     private String command = null;
@@ -54,14 +65,16 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration> {
     private String oaiSetID = null;
     private String metadataKey = null;
     private int harvestType = 0;
+    private Boolean forceSynch;
+    private Boolean itemValidation;
+    private Boolean recordValidation;
+    private Boolean submitEnabled = true;
 
-    protected Context context;
-
-
-    public HarvestScriptConfiguration getScriptConfiguration() {
-        return new DSpace().getServiceManager()
-                           .getServiceByName("harvest", HarvestScriptConfiguration.class);
-    }
+    private HarvestedCollectionService harvestedCollectionService;
+    protected EPersonService ePersonService;
+    private CollectionService collectionService;
+    private OAIHarvester harvester;
+    private CommunityService communityService;
 
     public void setup() throws ParseException {
         harvestedCollectionService =
@@ -69,6 +82,8 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration> {
         ePersonService = EPersonServiceFactory.getInstance().getEPersonService();
         collectionService =
                 ContentServiceFactory.getInstance().getCollectionService();
+        harvester = HarvestServiceFactory.getInstance().getOAIHarvester();
+        communityService = ContentServiceFactory.getInstance().getCommunityService();
 
         assignCurrentUserInContext();
 
@@ -116,6 +131,19 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration> {
         if (commandLine.hasOption('m')) {
             metadataKey = commandLine.getOptionValue('m');
         }
+
+        if (commandLine.hasOption('f')) {
+            forceSynch = toBoolean(commandLine.getOptionValue("f", "true"));
+        }
+        if (commandLine.hasOption("iv")) {
+            itemValidation = toBoolean(commandLine.getOptionValue("iv", "true"));
+        }
+        if (commandLine.hasOption("rv")) {
+            recordValidation = toBoolean(commandLine.getOptionValue("rv", "true"));
+        }
+        if (commandLine.hasOption('w')) {
+            submitEnabled = false;
+        }
     }
 
     /**
@@ -140,7 +168,9 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration> {
         }
     }
 
+
     public void internalRun() throws Exception {
+
         if (help) {
             printHelp();
             handler.logInfo("PING OAI server: Harvest -g -a oai_source -i oai_set_id");
@@ -165,7 +195,10 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration> {
                 handler.logError("A target collection and eperson must be provided (run with -h flag for details)");
                 throw new UnsupportedOperationException("A target collection and eperson must be provided");
             }
-            runHarvest(context, collection);
+
+            runHarvest(collection, new OAIHarvesterOptions(forceSynch, recordValidation,
+                itemValidation, submitEnabled));
+
         } else if ("start".equals(command)) {
             // start the harvest loop
             startHarvester();
@@ -181,11 +214,10 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration> {
 
             List<HarvestedCollection> harvestedCollections = harvestedCollectionService.findAll(context);
             for (HarvestedCollection harvestedCollection : harvestedCollections) {
-                handler.logInfo(
-                        "Purging the following collections (deleting items and resetting harvest status): " +
-                                harvestedCollection
-                                        .getCollection().getID().toString());
-                purgeCollection(context, harvestedCollection.getCollection().getID().toString());
+                String collectionId = harvestedCollection.getCollection().getID().toString();
+                handler.logInfo("Purging the following collections (deleting items and resetting harvest status): "
+                    + collectionId);
+                purgeCollection(collectionId);
             }
             context.complete();
         } else if ("purge".equals(command)) {
@@ -195,7 +227,7 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration> {
                 throw new UnsupportedOperationException("A target collection and eperson must be provided");
             }
 
-            purgeCollection(context, collection);
+            purgeCollection(collection);
             context.complete();
 
         } else if ("reimport".equals(command)) {
@@ -204,8 +236,9 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration> {
                 handler.logError("A target collection and eperson must be provided (run with -h flag for details)");
                 throw new UnsupportedOperationException("A target collection and eperson must be provided");
             }
-            purgeCollection(context, collection);
-            runHarvest(context, collection);
+            purgeCollection(collection);
+            runHarvest(collection, new OAIHarvesterOptions(forceSynch, recordValidation,
+                itemValidation, submitEnabled));
             context.complete();
 
         } else if ("config".equals(command)) {
@@ -249,7 +282,7 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration> {
      * Resolve the ID into a collection and check to see if its harvesting options are set. If so, return
      * the collection, if not, bail out.
      */
-    private Collection resolveCollection(Context context, String collectionID) {
+    private Collection resolveCollection(String collectionID) {
 
         DSpaceObject dso;
         Collection targetCollection = null;
@@ -290,7 +323,7 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration> {
                                      String mdConfigId) {
         handler.logInfo("Running: configure collection");
 
-        Collection collection = resolveCollection(context, collectionID);
+        Collection collection = resolveCollection(collectionID);
         handler.logInfo(String.valueOf(collection.getID()));
 
         try {
@@ -321,10 +354,10 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration> {
      *  @param collectionID
      *
      */
-    private void purgeCollection(Context context, String collectionID) {
+    private void purgeCollection(String collectionID) {
         handler.logInfo(
-                "Purging collection of all items and resetting last_harvested and harvest_message: " + collectionID);
-        Collection collection = resolveCollection(context, collectionID);
+            "Purging collection of all items and resetting last_harvested and harvest_message: " + collectionID);
+        Collection collection = resolveCollection(collectionID);
 
         try {
             context.turnOffAuthorisationSystem();
@@ -366,30 +399,32 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration> {
     /**
      * Run a single harvest cycle on the specified collection under the authorization of the supplied EPerson
      */
-    private void runHarvest(Context context, String collectionID) {
-        handler.logInfo("Running: a harvest cycle on " + collectionID);
+    private void runHarvest(String collectionID, OAIHarvesterOptions options) {
+        System.out.println("Running: a harvest cycle on " + collectionID);
 
-        handler.logInfo("Initializing the harvester... ");
-        OAIHarvester harvester = null;
+        System.out.print("Initializing the harvester... ");
         try {
-            Collection collection = resolveCollection(context, collectionID);
+
+            Collection collection = resolveCollection(collectionID);
             HarvestedCollection hc = harvestedCollectionService.find(context, collection);
-            harvester = new OAIHarvester(context, collection, hc);
-            handler.logInfo("Initialized the harvester successfully");
-        } catch (HarvestingException hex) {
-            handler.logError("Initializing the harvester failed.");
-            throw new IllegalStateException("Unable to harvest", hex);
-        } catch (SQLException se) {
-            handler.logError("Initializing the harvester failed.");
-            throw new IllegalStateException("Unable to access database", se);
-        }
 
-        try {
-            // Harvest will not work for an anonymous user
+            if (hc == null) {
+                throw new HarvestingException("Provided collection is not set up for harvesting");
+            }
+
             handler.logInfo("Harvest started... ");
-            harvester.runHarvest();
+
+            long startTimestamp = System.currentTimeMillis();
+
+            logProcess(options.getProcessId(), hc, true, startTimestamp);
+
+            harvester.runHarvest(context, hc, options);
+
             context.complete();
-        } catch (SQLException | AuthorizeException | IOException e) {
+
+            logProcess(options.getProcessId(), hc, false, startTimestamp);
+
+        } catch (SQLException e) {
             throw new IllegalStateException("Failed to run harvester", e);
         }
 
@@ -464,5 +499,31 @@ public class Harvest extends DSpaceRunnable<HarvestScriptConfiguration> {
         }
     }
 
+    private void logProcess(UUID processId, HarvestedCollection harvestRow, boolean start, long startTimestamp)
+        throws SQLException {
+
+        Collection collection = harvestRow.getCollection();
+        Community parentCommunity = (Community) collectionService.getParentObject(context, collection);
+
+        String logMessage = new StringBuilder(LOG_PREFIX)
+            .append(processId).append(LOG_DELIMITER)
+            .append(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(new Date())).append(LOG_DELIMITER)
+            .append(harvestRow.getOaiSource()).append(LOG_DELIMITER)
+            .append(harvestRow.getOaiSetId() != null ? harvestRow.getOaiSetId() : "").append(LOG_DELIMITER)
+            .append(communityService.getName(parentCommunity)).append(LOG_DELIMITER)
+            .append(collection.getID()).append(LOG_DELIMITER)
+            .append(collectionService.getName(collection)).append(LOG_DELIMITER)
+            .append(start ? "START" : "FINISH").append(LOG_DELIMITER)
+            .append(start ? 0 : System.currentTimeMillis() - startTimestamp)
+            .toString();
+
+        LOGGER.trace(logMessage);
+    }
+
+    @SuppressWarnings("unchecked")
+    public HarvestScriptConfiguration<Harvest> getScriptConfiguration() {
+        return new DSpace().getServiceManager()
+            .getServiceByName("harvest", HarvestScriptConfiguration.class);
+    }
 
 }

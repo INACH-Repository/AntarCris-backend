@@ -7,6 +7,7 @@
  */
 package org.dspace.app.mediafilter;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.ArrayUtils;
@@ -27,6 +29,8 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.SelfNamedPlugin;
 import org.dspace.core.factory.CoreServiceFactory;
+import org.dspace.eperson.EPerson;
+import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.handle.factory.HandleServiceFactory;
 import org.dspace.scripts.DSpaceRunnable;
 import org.dspace.services.factory.DSpaceServicesFactory;
@@ -227,12 +231,12 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
         }
 
         Context c = null;
-
         try {
             c = new Context();
+            assignCurrentUserInContext(c);
+            assignSpecialGroupsInContext(c);
 
-            // have to be super-user to do the filtering
-            c.turnOffAuthorisationSystem();
+            handleAuthorizationSystem(c);
 
             // now apply the filters
             if (identifier == null) {
@@ -260,14 +264,25 @@ public class MediaFilterScript extends DSpaceRunnable<MediaFilterScriptConfigura
                 }
             }
 
+            handleAuthorizationSystem(c);
             c.complete();
-            c = null;
         } catch (Exception e) {
             handler.handleException(e);
-        } finally {
-            if (c != null) {
-                c.abort();
-            }
+            c.abort();
+        }
+    }
+
+    protected void assignCurrentUserInContext(Context context) throws SQLException {
+        UUID uuid = getEpersonIdentifier();
+        if (uuid != null) {
+            EPerson ePerson = EPersonServiceFactory.getInstance().getEPersonService().find(context, uuid);
+            context.setCurrentUser(ePerson);
+        }
+    }
+
+    private void assignSpecialGroupsInContext(Context context) throws SQLException {
+        for (UUID uuid : handler.getSpecialGroups()) {
+            context.setSpecialGroup(uuid);
         }
     }
 }

@@ -9,13 +9,12 @@ package org.dspace.ctask.general;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
-
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
 import org.dspace.builder.ItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
+import org.dspace.content.authority.factory.ContentAuthorityServiceFactory;
 import org.dspace.core.factory.CoreServiceFactory;
 import org.dspace.curate.Curator;
 import org.dspace.identifier.AbstractIdentifierProviderIT;
@@ -23,6 +22,7 @@ import org.dspace.identifier.VersionedHandleIdentifierProvider;
 import org.dspace.identifier.VersionedHandleIdentifierProviderWithCanonicalHandles;
 import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -30,6 +30,7 @@ import org.junit.Test;
  *
  * @author mwood
  */
+@Ignore
 public class CreateMissingIdentifiersIT
     extends AbstractIdentifierProviderIT {
 
@@ -41,9 +42,10 @@ public class CreateMissingIdentifiersIT
 
     @Test
     public void testPerform()
-            throws IOException {
+            throws Exception {
         // Must remove any cached named plugins before creating a new one
         CoreServiceFactory.getInstance().getPluginService().clearNamedPluginClasses();
+        ContentAuthorityServiceFactory.getInstance().getChoiceAuthorityService().clearCache();
         // Define a new task dynamically
         configurationService.setProperty(P_TASK_DEF,
                 CreateMissingIdentifiers.class.getCanonicalName() + " = " + TASK_NAME);

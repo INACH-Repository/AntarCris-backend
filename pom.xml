@@ -4,16 +4,16 @@
     <groupId>org.dspace</groupId>
     <artifactId>dspace-parent</artifactId>
     <packaging>pom</packaging>
-    <version>8.1</version>
+    <version>cris-2024.02.01</version>
     <name>DSpace Parent Project</name>
     <description>
-   	DSpace open source software is a turnkey institutional repository application.
+   	DSpace-CRIS is an open source extension of DSpace (http://www.dspace.org) providing out of box support for the CRIS / RIMS and moder Institution Repository use cases with advanced features and optimized configurations
     </description>
-    <url>https://github.com/DSpace/DSpace</url>
+    <url>https://github.com/4Science/DSpace</url>
 
     <organization>
-        <name>LYRASIS</name>
-        <url>https://dspace.org</url>
+        <name>4Science</name>
+        <url>https://www.4science.it</url>
     </organization>
 
     <properties>
@@ -25,7 +25,9 @@
         <hibernate.version>6.4.8.Final</hibernate.version>
         <hibernate-validator.version>8.0.1.Final</hibernate-validator.version>
         <postgresql.driver.version>42.7.5</postgresql.driver.version>
-        <flyway.version>10.22.0</flyway.version>
+        <!-- update to version 10.11.0 and newer will cause runtime problems due to some
+            graaljs dependency (< 21.2.0) as said here: https://github.com/flyway/flyway/issues/3882 -->
+        <flyway.version>10.10.0</flyway.version>
         <solr.client.version>8.11.4</solr.client.version>
 
         <ehcache.version>3.10.8</ehcache.version>
@@ -55,10 +57,23 @@
         <!-- Library for managing JSON Web Tokens (JWT): https://bitbucket.org/connect2id/nimbus-jose-jwt/wiki/Home
              (used by Server webapp) -->
         <nimbus-jose-jwt.version>9.48</nimbus-jose-jwt.version>
+        <json-smart.version>2.5.0</json-smart.version>
 
         <!--=== OTHER MODULE-SPECIFIC DEPENDENCIES ===-->
         <!-- Jena is used by both RDF and SWORDv2 -->
         <jena.version>4.10.0</jena.version>
+
+        <!--=== ADDON DEPENDENCIES ===-->
+        <addons.version>[cris-2024.02.01,cris-2024.02.01.9999)</addons.version>
+        <addon-iiif.version>${addons.version}</addon-iiif.version>
+        <addon-ocr.version>${addons.version}</addon-ocr.version>
+        <addon-docviewer.version>${addons.version}</addon-docviewer.version>
+        <addon-analytics.version>${addons.version}</addon-analytics.version>
+        <addon-dataquality.version>${addons.version}</addon-dataquality.version>
+        <addon-networklab.version>${addons.version}</addon-networklab.version>
+        <addon-orchestrator.version>${addons.version}</addon-orchestrator.version>
+        <addon-loginmiur.version>${addons.version}</addon-loginmiur.version>
+        <addon-importplus.version>${addons.version}</addon-importplus.version>
 
         <!--=== MAVEN SETTINGS ===-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -407,6 +422,11 @@
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.8.12</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -507,6 +527,9 @@
                             </includes>
                             <excludes>
                                 <exclude>**/target/**</exclude>
+                                <exclude>.idea/**</exclude>
+                                <exclude>.settings/**</exclude>
+                                <exclude>.github/**</exclude>
                             </excludes>
                         </validationSet>
                     </validationSets>
@@ -528,6 +551,62 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>pipeline</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-install-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>install-test-resources</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>install-file</goal>
+                                </goals>
+                                <configuration>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>${project.artifactId}</artifactId>
+                                    <version>${project.version}</version>
+                                    <packaging>zip</packaging>
+                                    <classifier>testEnvironment</classifier>
+                                    <pomFile>${root.basedir}/pom.xml</pomFile>
+                                    <file>${project.build.directory}/dspace-parent-${project.version}-testEnvironment.zip</file>
+                                    <localRepositoryPath>${root.basedir}/target/local-repo</localRepositoryPath>
+                                </configuration>
+                                <inherited>false</inherited>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-dependencies</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${root.basedir}/target/local-repo</outputDirectory>
+                                    <overWriteReleases>false</overWriteReleases>
+                                    <overWriteSnapshots>false</overWriteSnapshots>
+                                    <overWriteIfNewer>true</overWriteIfNewer>
+                                    <useRepositoryLayout>true</useRepositoryLayout>
+                                    <copyPom>true</copyPom>
+                                    <includeGroupIds>org.dspace</includeGroupIds>
+                                    <includeTypes>jar,test-jar</includeTypes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <!-- Allow for passing extra memory to Unit/Integration tests.
              By default this gives unit tests 1GB of memory max (when tests are enabled),
              unless tweaked on commandline (e.g. "-Dtest.argLine=-Xmx512m"). Since
@@ -876,6 +955,198 @@
         </profile>
 
         <!--
+            Builds IIIF addon for DSpace
+        -->
+        <profile>
+            <id>addon-iiif</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                         <groupId>it.4science.dspace</groupId>
+                         <artifactId>addon-iiif-api</artifactId>
+                         <version>${addon-iiif.version}</version>
+                         <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+        <!--
+            Builds OCR addon for DSpace
+        -->
+        <profile>
+            <id>addon-ocr</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                         <groupId>it.4science.dspace</groupId>
+                         <artifactId>addon-ocr-api</artifactId>
+                         <version>${addon-ocr.version}</version>
+                         <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+        <!--
+            Builds Document Viewer addon for DSpace
+        -->
+        <profile>
+            <id>addon-document-viewer</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                         <groupId>it.4science.dspace</groupId>
+                         <artifactId>addon-docviewer-api</artifactId>
+                         <version>${addon-docviewer.version}</version>
+                         <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+        <!--
+            Builds Analytics addon for DSpace
+        -->
+        <profile>
+            <id>addon-analytics</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                         <groupId>it.4science.dspace</groupId>
+                         <artifactId>addon-analytics-api</artifactId>
+                         <version>${addon-analytics.version}</version>
+                         <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+        <!--
+            Builds loginmiur addon for DSpace
+        -->
+        <profile>
+            <id>addon-loginmiur</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                         <groupId>it.4science.dspace</groupId>
+                         <artifactId>addon-loginmiur-api</artifactId>
+                         <version>${addon-loginmiur.version}</version>
+                         <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+        <!--
+            Builds Data Quality addon for DSpace
+        -->
+        <profile>
+            <id>addon-dataquality</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                         <groupId>it.4science.dspace</groupId>
+                         <artifactId>addon-dataquality</artifactId>
+                         <version>${addon-dataquality.version}</version>
+                         <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+        <profile>
+            <id>addon-networklab</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-networklab</artifactId>
+                        <version>${addon-networklab.version}</version>
+                        <type>jar</type>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>org.bouncycastle</groupId>
+                                <artifactId>bcpkix-jdk15on</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>io.github.classgraph</groupId>
+                                <artifactId>classgraph</artifactId>
+                            </exclusion>
+                            <exclusion>
+                                <groupId>io.netty</groupId>
+                                <artifactId>netty-handler</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+        <!-- Builds Orchestrator addon for DSpace -->
+        <profile>
+            <id>addon-orchestrator</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-orchestrator-api</artifactId>
+                        <version>${addon-orchestrator.version}</version>
+                        <type>jar</type>
+                    </dependency>
+                    <dependency>
+                        <groupId>it.4science.dspace</groupId>
+                        <artifactId>addon-orchestrator-rest</artifactId>
+                        <version>${addon-orchestrator.version}</version>
+                        <type>jar</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+
+        <profile>
+          <id>addon-importplus</id>
+          <activation>
+            <activeByDefault>false</activeByDefault>
+          </activation>
+          <dependencyManagement>
+            <dependencies>
+              <dependency>
+                <groupId>it.4science.dspace</groupId>
+                <artifactId>addon-importplus</artifactId>
+                <version>${addon-importplus.version}</version>
+                <type>jar</type>
+              </dependency>
+            </dependencies>
+          </dependencyManagement>
+        </profile>
+
+        <!--
            Builds SWORD extension for DSpace
         -->
         <profile>
@@ -889,7 +1160,6 @@
                 <module>dspace-sword</module>
             </modules>
         </profile>
-
 
         <!--
            Builds SWORDv2 extension for DSpace
@@ -948,14 +1218,14 @@
                         <extensions>true</extensions>
                         <configuration>
                             <!-- In your settings.xml, your username/password
-                                 MUST be specified for server 'ossrh' -->
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <!-- Disable autoclose of repository after upload, as this sometimes times out -->
-                            <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+                                 MUST be specified for server '4science-nexus' -->
+                            <serverId>4science-nexus</serverId>
+                            <nexusUrl>https://nexus.4science.it/</nexusUrl>
                             <!-- Require manual verification / release to Maven Central -->
                             <autoReleaseAfterClose>false</autoReleaseAfterClose>
-                            <!-- Increase Staging timeout to 10mins -->
+                            <!-- Disable autoclose of repository after upload, as this sometimes times out -->
+                            <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+			    <!-- Increase Staging timeout to 10mins -->
                             <stagingProgressTimeoutMinutes>10</stagingProgressTimeoutMinutes>
                         </configuration>
                     </plugin>
@@ -1018,68 +1288,68 @@
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-api</artifactId>
-                <version>8.1</version>
+                <version>cris-2024.02.01</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-api</artifactId>
                 <type>test-jar</type>
-                <version>8.1</version>
+                <version>cris-2024.02.01</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.dspace.modules</groupId>
                 <artifactId>additions</artifactId>
-                <version>8.1</version>
+                <version>cris-2024.02.01</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace.modules</groupId>
                 <artifactId>server</artifactId>
                 <classifier>classes</classifier>
-                <version>8.1</version>
+                <version>cris-2024.02.01</version>
             </dependency>
 
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-sword</artifactId>
-                <version>8.1</version>
+                <version>cris-2024.02.01</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-swordv2</artifactId>
-                <version>8.1</version>
+                <version>cris-2024.02.01</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-oai</artifactId>
-                <version>8.1</version>
+                <version>cris-2024.02.01</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-services</artifactId>
-                <version>8.1</version>
+                <version>cris-2024.02.01</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-server-webapp</artifactId>
                 <type>test-jar</type>
-                <version>8.1</version>
+                <version>cris-2024.02.01</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-rdf</artifactId>
-                <version>8.1</version>
+                <version>cris-2024.02.01</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-iiif</artifactId>
-                <version>8.1</version>
+                <version>cris-2024.02.01</version>
             </dependency>
             <dependency>
                 <groupId>org.dspace</groupId>
                 <artifactId>dspace-server-webapp</artifactId>
-                <version>8.1</version>
+                <version>cris-2024.02.01</version>
             </dependency>
             <!-- DSpace API Localization Packages -->
             <dependency>
@@ -1209,7 +1479,7 @@
             </dependency>
 
             <dependency>
-		    <artifactId>spring-jdbc</artifactId>
+                <artifactId>spring-jdbc</artifactId>
                 <groupId>org.springframework</groupId>
                 <version>${spring.version}</version>
             </dependency>
@@ -1543,6 +1813,7 @@
                 <artifactId>joda-time</artifactId>
                 <version>2.13.0</version>
             </dependency>
+            <!-- Java Injection -->
             <dependency>
                 <groupId>jakarta.activation</groupId>
                 <artifactId>jakarta.activation-api</artifactId>
@@ -1603,6 +1874,11 @@
             <!-- This bridge ensures any logging to slf4j is sent to log4j -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-web</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j2-impl</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
@@ -1653,9 +1929,9 @@
                 <version>4.5.14</version>
             </dependency>
             <dependency>
-              <groupId>org.apache.httpcomponents</groupId>
-              <artifactId>httpmime</artifactId>
-              <version>4.5.14</version>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpmime</artifactId>
+                <version>4.5.14</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -1711,6 +1987,66 @@
                 <artifactId>h2</artifactId>
                 <version>2.3.232</version>
                 <scope>test</scope>
+            </dependency>
+            <!-- Google Analytics -->
+            <dependency>
+                <groupId>com.google.apis</groupId>
+                <artifactId>google-api-services-analytics</artifactId>
+                <version>v3-rev145-1.23.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.api-client</groupId>
+                <artifactId>google-api-client</artifactId>
+                <version>1.35.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.http-client</groupId>
+                <artifactId>google-http-client</artifactId>
+                <version>1.45.3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.errorprone</groupId>
+                        <artifactId>error_prone_annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.google.j2objc</groupId>
+                        <artifactId>j2objc-annotations</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- This dependency is only here for dependency convergence. google-http-client pulls in
+             two versions of this, and we want the latest version. -->
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-context</artifactId>
+                <version>1.69.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.http-client</groupId>
+                <artifactId>google-http-client-jackson2</artifactId>
+                <version>1.45.3</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>jackson-core</artifactId>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>jackson-databind</artifactId>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.google.oauth-client</groupId>
+                <artifactId>google-oauth-client</artifactId>
+                <version>1.37.0</version>
+            </dependency>
+            <!-- This dependency is only here for dependency convergence. google-api-client & google-oauth-client
+             pulls in two different versions of this, and we want the latest version. -->
+            <dependency>
+                <groupId>com.google.http-client</groupId>
+                <artifactId>google-http-client-gson</artifactId>
+                <version>1.43.3</version>
             </dependency>
 
             <!-- Findbugs annotations -->
@@ -1815,13 +2151,30 @@
                 <artifactId>byte-buddy</artifactId>
                 <version>1.16.1</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>xmlgraphics-commons</artifactId>
+                <version>2.9</version>
+            </dependency>
+            <!-- Made provided in order to be excluded globally since conflicts with commons-logging -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jcl</artifactId>
+                <version>(${spring.version},]</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.minidev</groupId>
+                <artifactId>json-smart</artifactId>
+                <version>${json-smart.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <licenses>
         <license>
-            <name>DSpace BSD License</name>
-            <url>https://raw.github.com/DSpace/DSpace/main/LICENSE</url>
+            <name>DSpace-CRIS BSD License</name>
+            <url>https://github.com/4Science/DSpace/raw/dspace-cris-7/LICENSE</url>
             <distribution>repo</distribution>
             <comments>
                A BSD 3-Clause license for the DSpace codebase.
@@ -1831,7 +2184,7 @@
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/DSpace/DSpace/issues</url>
+        <url>https://github.com/4Science/DSpace/issues</url>
     </issueManagement>
 
     <mailingLists>
@@ -1914,24 +2267,30 @@
       Information about the SCM repository where source code exists.
     -->
     <scm>
-        <connection>scm:git:git@github.com:DSpace/DSpace.git</connection>
-        <developerConnection>scm:git:git@github.com:DSpace/DSpace.git</developerConnection>
-        <url>git@github.com:DSpace/DSpace.git</url>
-        <tag>dspace-8.1</tag>
+        <connection>scm:git:git@github.com:4Science/DSpace.git</connection>
+        <developerConnection>scm:git:git@github.com:4Science/DSpace.git</developerConnection>
+        <url>git@github.com:4Science/DSpace.git</url>
+        <tag>dspace-cris-2024.02.01</tag>
     </scm>
 
 
     <!-- Configure our release repositories to use Sonatype.
          See: http://central.sonatype.org/pages/apache-maven.html -->
     <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
         <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>4science-nexus</id>
+            <name>4Science Public Releases</name>
+            <url>https://nexus.4science.it/repository/maven-releases/</url>
         </repository>
+        <snapshotRepository>
+            <id>4science-snapshot</id>
+            <name>4Science Public Snapshot</name>
+            <url>https://nexus.4science.it/repository/maven-snapshots/</url>
+        </snapshotRepository>
+        <site>
+            <id>website</id>
+            <url>https://wiki.duraspace.org/display/DSPACECRIS/DSpace-CRIS+Home</url>
+        </site>
     </distributionManagement>
 
     <repositories>
@@ -1962,6 +2321,11 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>4science-repo-nexus</id>
+            <name>4Science Maven Repository</name>
+            <url>https://nexus.4science.it/repository/maven-public/</url>
         </repository>
     </repositories>
 </project>

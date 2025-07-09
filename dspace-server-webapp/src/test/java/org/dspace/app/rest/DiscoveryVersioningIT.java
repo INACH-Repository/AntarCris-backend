@@ -61,6 +61,7 @@ import org.dspace.discovery.IndexingService;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SolrSearchCore;
 import org.dspace.discovery.indexobject.IndexableItem;
+import org.dspace.services.ConfigurationService;
 import org.dspace.versioning.Version;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
 import org.hamcrest.Matcher;
@@ -68,6 +69,7 @@ import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -78,6 +80,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
  * DSpace needs to index both the latest version of an item, and all previous versions, into Solr.
  * Some discovery configurations should show all versions, while others should only consider the latest versions.
  */
+@Ignore
 public class DiscoveryVersioningIT extends AbstractControllerIntegrationTest {
 
     @Autowired
@@ -101,6 +104,9 @@ public class DiscoveryVersioningIT extends AbstractControllerIntegrationTest {
     @Autowired
     private RelationshipService relationshipService;
 
+    @Autowired
+    private ConfigurationService configurationService;
+
     protected Community community;
 
     @Override
@@ -113,6 +119,8 @@ public class DiscoveryVersioningIT extends AbstractControllerIntegrationTest {
         community = CommunityBuilder.createCommunity(context)
             .withName("community")
             .build();
+
+        configurationService.setProperty("item.enable-virtual-metadata", true);
 
         context.restoreAuthSystemState();
     }

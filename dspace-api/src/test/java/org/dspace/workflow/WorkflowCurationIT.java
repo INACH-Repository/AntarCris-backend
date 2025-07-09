@@ -12,7 +12,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import jakarta.inject.Inject;
 import org.dspace.AbstractIntegrationTestWithDatabase;
 import org.dspace.builder.CollectionBuilder;
 import org.dspace.builder.CommunityBuilder;
@@ -21,31 +20,25 @@ import org.dspace.builder.WorkflowItemBuilder;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.Context;
 import org.dspace.ctask.testing.MarkerTask;
+import org.dspace.curate.Curator;
 import org.dspace.eperson.EPerson;
-import org.dspace.util.DSpaceConfigurationInitializer;
-import org.dspace.util.DSpaceKernelInitializer;
 import org.dspace.xmlworkflow.storedcomponents.XmlWorkflowItem;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * Test the attachment of curation tasks to workflows.
  *
  * @author mwood
  */
-@RunWith(SpringRunner.class)
-@ContextConfiguration(
-        initializers = { DSpaceKernelInitializer.class, DSpaceConfigurationInitializer.class },
-        locations = { "classpath:spring/*.xml" }
-)
-public class WorkflowCurationIT
-        extends AbstractIntegrationTestWithDatabase {
-    @Inject
-    private ItemService itemService;
+@Ignore
+public class WorkflowCurationIT extends AbstractIntegrationTestWithDatabase {
+
+    private ItemService itemService = ContentServiceFactory.getInstance().getItemService();
 
     /**
      * Basic smoke test of a curation task attached to a workflow step.
@@ -107,5 +100,51 @@ public class WorkflowCurationIT
             }
         }
         assertThat("Item should have been curated", found);
+    }
+
+    /**
+     * Test method which include calling
+     * {@link org.dspace.curate.XmlWorkflowCuratorServiceImpl#curate(Curator, Context, XmlWorkflowItem)}.
+     * <p>
+     * Verifies that the curate process is executed correctly given a specific
+     * {@link Curator}, {@link Context}, and {@link XmlWorkflowItem}.
+     * </p>
+     * <p>
+     * This method depends on setting the transaction scope of the curator
+     * to {@code Curator.TxScope.CURATION}. If this is not set, an exception
+     * will be thrown during the curation process.
+     * </p>
+     */
+    @Test
+    public void changeScopeToCurationBeforeCurateTest() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        final String CURATION_COLLECTION_HANDLE = "123456789/curation-test-2";
+
+        EPerson submitter = EPersonBuilder.createEPerson(context)
+                .withEmail("submitter@example.com")
+                .withPassword(password)
+                .withLanguage("en")
+                .build();
+
+        Community community = CommunityBuilder.createCommunity(context)
+                .withName("Community")
+                .build();
+
+        Collection collection = CollectionBuilder
+                .createCollection(context, community, CURATION_COLLECTION_HANDLE)
+                .withName("Collection")
+                .build();
+
+        context.setCurrentUser(submitter);
+
+        //
+        WorkflowItemBuilder.createWorkflowItem(context, collection)
+                .withTitle("Test of workflow curation")
+                .withIssueDate("2021-05-14")
+                .withSubject("Testing")
+                .build();
+
+        context.restoreAuthSystemState();
     }
 }

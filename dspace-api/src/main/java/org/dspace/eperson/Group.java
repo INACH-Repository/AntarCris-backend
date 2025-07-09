@@ -135,6 +135,7 @@ public class Group extends CacheableDSpaceObject implements DSpaceObjectLegacySu
     }
 
     boolean contains(EPerson e) {
+
         return getMembers().contains(e);
     }
 

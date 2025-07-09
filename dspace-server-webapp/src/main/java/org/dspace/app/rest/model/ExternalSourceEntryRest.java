@@ -7,6 +7,8 @@
  */
 package org.dspace.app.rest.model;
 
+import java.util.List;
+
 import org.dspace.app.rest.ExternalSourcesRestController;
 
 /**
@@ -43,6 +45,7 @@ public class ExternalSourceEntryRest extends RestAddressableModel {
     private String value;
     private String externalSource;
     private MetadataRest metadata = new MetadataRest();
+    private List<ItemRest> matchObjects;
 
     /**
      * Generic getter for the id
@@ -122,5 +125,13 @@ public class ExternalSourceEntryRest extends RestAddressableModel {
      */
     public void setMetadata(MetadataRest metadata) {
         this.metadata = metadata;
+    }
+
+    public List<ItemRest> getMatchObjects() {
+        return matchObjects;
+    }
+
+    public void setMatchObjects(List<ItemRest> matchObjects) {
+        this.matchObjects = matchObjects;
     }
 }

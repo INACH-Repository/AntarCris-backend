@@ -62,7 +62,7 @@ public class Not implements LogicalStatement {
      * @throws LogicalStatementException
      */
     @Override
-    public boolean getResult(Context context, Item item) throws LogicalStatementException {
+    public Boolean getResult(Context context, Item item) throws LogicalStatementException {
         return !statement.getResult(context, item);
     }
 }

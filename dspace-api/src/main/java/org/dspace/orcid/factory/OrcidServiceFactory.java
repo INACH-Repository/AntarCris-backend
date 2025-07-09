@@ -7,6 +7,8 @@
  */
 package org.dspace.orcid.factory;
 
+import java.util.List;
+
 import org.dspace.orcid.client.OrcidClient;
 import org.dspace.orcid.client.OrcidConfiguration;
 import org.dspace.orcid.service.MetadataSignatureGenerator;
@@ -16,6 +18,8 @@ import org.dspace.orcid.service.OrcidProfileSectionFactoryService;
 import org.dspace.orcid.service.OrcidQueueService;
 import org.dspace.orcid.service.OrcidSynchronizationService;
 import org.dspace.orcid.service.OrcidTokenService;
+import org.dspace.orcid.service.OrcidWebhookService;
+import org.dspace.orcid.webhook.OrcidWebhookAction;
 import org.dspace.services.factory.DSpaceServicesFactory;
 
 /**
@@ -33,6 +37,8 @@ public abstract class OrcidServiceFactory {
 
     public abstract OrcidSynchronizationService getOrcidSynchronizationService();
 
+    public abstract OrcidWebhookService getOrcidWebhookService();
+
     public abstract OrcidTokenService getOrcidTokenService();
 
     public abstract OrcidProfileSectionFactoryService getOrcidProfileSectionFactoryService();
@@ -40,6 +46,8 @@ public abstract class OrcidServiceFactory {
     public abstract MetadataSignatureGenerator getMetadataSignatureGenerator();
 
     public abstract OrcidEntityFactoryService getOrcidEntityFactoryService();
+
+    public abstract List<OrcidWebhookAction> getOrcidWebhookActions();
 
     public abstract OrcidClient getOrcidClient();
 

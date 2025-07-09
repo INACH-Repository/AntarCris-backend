@@ -55,6 +55,7 @@ import org.dspace.app.rest.exception.PaginationException;
 import org.dspace.app.rest.exception.RepositoryNotFoundException;
 import org.dspace.app.rest.model.BaseObjectRest;
 import org.dspace.app.rest.model.CommunityRest;
+import org.dspace.app.rest.model.CrisMetricsRest;
 import org.dspace.app.rest.model.LinkRest;
 import org.dspace.app.rest.model.LinksRest;
 import org.dspace.app.rest.model.OrcidHistoryRest;
@@ -65,6 +66,7 @@ import org.dspace.app.rest.model.ResourcePolicyRest;
 import org.dspace.app.rest.model.RestAddressableModel;
 import org.dspace.app.rest.model.RestModel;
 import org.dspace.app.rest.model.SupervisionOrderRest;
+import org.dspace.app.rest.model.UsageReportCategoryRest;
 import org.dspace.app.rest.model.VersionHistoryRest;
 import org.dspace.app.rest.model.VocabularyRest;
 import org.dspace.app.rest.model.hateoas.EmbeddedPage;
@@ -193,6 +195,27 @@ public class Utils {
                 Math.toIntExact(pageable.getOffset()) + pageable.getPageSize());
         }
         return pageContent;
+    }
+
+    /**
+     * @param rel
+     * @param domainClass
+     * @return the LinkRest annotation corresponding to the specified rel in the
+     * domainClass. Null if not found
+     */
+    public LinkRest getLinkRest(String rel, Class<RestAddressableModel> domainClass) {
+        LinkRest linkRest = null;
+        LinksRest linksAnnotation = domainClass.getDeclaredAnnotation(LinksRest.class);
+        if (linksAnnotation != null) {
+            LinkRest[] links = linksAnnotation.links();
+            for (LinkRest l : links) {
+                if (StringUtils.equals(rel, l.name())) {
+                    linkRest = l;
+                    break;
+                }
+            }
+        }
+        return linkRest;
     }
 
     /**
@@ -326,6 +349,12 @@ public class Utils {
         if (StringUtils.equals(modelPlural, "orcidhistories")) {
             return OrcidHistoryRest.NAME;
         }
+        if (StringUtils.equals(modelPlural, "metrics")) {
+            return CrisMetricsRest.NAME;
+        }
+        if (StringUtils.equals(modelPlural, "categories")) {
+            return UsageReportCategoryRest.NAME;
+        }
         if (StringUtils.equals(modelPlural, "supervisionorders")) {
             return SupervisionOrderRest.NAME;
         }
@@ -345,7 +374,7 @@ public class Utils {
         try {
             return applicationContext.getBean(apiCategory + "." + modelPlural + "." + rel, LinkRestRepository.class);
         } catch (NoSuchBeanDefinitionException e) {
-            throw new RepositoryNotFoundException(apiCategory, modelPlural);
+            throw new RepositoryNotFoundException(apiCategory, modelPlural, rel);
         }
     }
 
@@ -988,6 +1017,9 @@ public class Utils {
     public BaseObjectRest getBaseObjectRestFromUri(Context context, String uri) throws SQLException {
         String dspaceUrl = configurationService.getProperty("dspace.server.url");
         String dspaceSSRUrl = configurationService.getProperty("dspace.server.ssr.url", dspaceUrl);
+        if (StringUtils.isBlank(dspaceSSRUrl)) {
+            dspaceSSRUrl = dspaceUrl;
+        }
 
         // Convert strings to URL objects.
         // Do this early to check that inputs are well-formed.
@@ -997,9 +1029,7 @@ public class Utils {
         try {
             dspaceUrlObject = new URL(dspaceUrl);
             requestUrlObject = new URL(uri);
-            if (StringUtils.isNoneBlank(dspaceSSRUrl)) {
-                dspaceUrlSSRObject = new URL(dspaceSSRUrl);
-            }
+            dspaceUrlSSRObject = new URL(dspaceSSRUrl);
         } catch (MalformedURLException ex) {
             throw new IllegalArgumentException(
                     String.format("Configuration '%s' or request '%s' is malformed", dspaceUrl, uri));

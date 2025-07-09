@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.converter.ConverterService;
+import org.dspace.app.rest.exception.RESTAuthorizationException;
 import org.dspace.app.rest.model.DSpaceObjectRest;
 import org.dspace.app.rest.utils.ContextUtil;
 import org.dspace.app.rest.utils.DSpaceObjectUtils;
@@ -99,6 +100,11 @@ public class UUIDLookupRestController implements InitializingBean {
             if (dso != null) {
                 authorizeService.authorizeAction(context, dso, Constants.READ);
                 DSpaceObjectRest dsor = converter.toRest(dso, utils.obtainProjection());
+                // if the user cannot access the item the converter will return null
+                if (dsor == null) {
+                    throw new RESTAuthorizationException(
+                            "The object with uuid " + uuid.toString() + " cannot be accessed");
+                }
                 URI link = linkTo(dsor.getController(), dsor.getCategory(), dsor.getTypePlural()).slash(dsor.getId())
                         .toUri();
                 response.setStatus(HttpServletResponse.SC_FOUND);

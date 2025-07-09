@@ -220,7 +220,7 @@ public class LogicalFilterTest extends AbstractUnitTest {
     public void testAndOperator() {
         // Blank operator
         And and = new And();
-        // Try tests
+
         try {
             // Set to True, True (expect True)
             and.setStatements(trueStatements);
@@ -247,7 +247,6 @@ public class LogicalFilterTest extends AbstractUnitTest {
     public void testOrOperator() {
         // Blank operator
         Or or = new Or();
-        // Try tests
         try {
             // Set to True, True (expect True)
             or.setStatements(trueStatements);
@@ -274,7 +273,6 @@ public class LogicalFilterTest extends AbstractUnitTest {
     public void testNandOperator() {
         // Blank operator
         Nand nand = new Nand();
-        // Try tests
         try {
             // Set to True, True (expect False)
             nand.setStatements(trueStatements);
@@ -301,7 +299,6 @@ public class LogicalFilterTest extends AbstractUnitTest {
     public void testNorOperator() {
         // Blank operator
         Nor nor = new Nor();
-        // Try tests
         try {
             // Set to True, True (expect False)
             nor.setStatements(trueStatements);
@@ -328,7 +325,6 @@ public class LogicalFilterTest extends AbstractUnitTest {
     public void testNotOperator() {
         // Blank operator
         Not not = new Not();
-        // Try tests
         try {
             // Set to True (expect False)
             not.setStatements(trueStatementOne);
@@ -431,6 +427,7 @@ public class LogicalFilterTest extends AbstractUnitTest {
         // Set up condition with these parameters and add it as the sole statement to the metadata filter
         try {
             condition.setParameters(parameters);
+            condition.setItemService(ContentServiceFactory.getInstance().getItemService());
             filter.setStatement(condition);
             // Test the filter on the first item - expected outcome is true
             assertTrue("itemOne unexpectedly did not match the " +
@@ -474,6 +471,7 @@ public class LogicalFilterTest extends AbstractUnitTest {
         try {
             // Set parameters and condition
             condition.setParameters(parameters);
+            condition.setItemService(ContentServiceFactory.getInstance().getItemService());
             filter.setStatement(condition);
 
             // Test the filter on the first item - this item is in collectionOne: expected outcome is true
@@ -594,8 +592,6 @@ public class LogicalFilterTest extends AbstractUnitTest {
         Condition condition = new ReadableByGroupCondition();
 
         try {
-            condition.setItemService(ContentServiceFactory.getInstance().getItemService());
-
             // Make item one readable by Test Group
             try {
                 context.turnOffAuthorisationSystem();
@@ -612,6 +608,7 @@ public class LogicalFilterTest extends AbstractUnitTest {
             parameters.put("group", "Test Group");
             parameters.put("action", "READ");
             condition.setParameters(parameters);
+            condition.setItemService(ContentServiceFactory.getInstance().getItemService());
             filter.setStatement(condition);
 
             // Test the filter on itemOne - this item was explicitly set with expected group READ policy

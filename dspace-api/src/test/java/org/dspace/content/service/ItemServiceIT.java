@@ -16,6 +16,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -63,11 +67,16 @@ import org.dspace.core.Constants;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.factory.EPersonServiceFactory;
 import org.dspace.eperson.service.GroupService;
+import org.dspace.orcid.client.OrcidClient;
+import org.dspace.orcid.factory.OrcidServiceFactory;
+import org.dspace.orcid.factory.OrcidServiceFactoryImpl;
 import org.dspace.versioning.Version;
 import org.dspace.versioning.factory.VersionServiceFactory;
 import org.dspace.versioning.service.VersioningService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.orcid.jaxb.model.v3.release.search.expanded.ExpandedSearch;
 
 public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
     private static final Logger log = org.apache.logging.log4j.LogManager.getLogger(ItemServiceIT.class);
@@ -88,6 +97,10 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
     protected VersioningService versioningService = VersionServiceFactory.getInstance().getVersionService();
     protected AuthorizeService authorizeService = AuthorizeServiceFactory.getInstance().getAuthorizeService();
     protected GroupService groupService = EPersonServiceFactory.getInstance().getGroupService();
+
+    protected OrcidClient orcidClient = OrcidServiceFactory.getInstance().getOrcidClient();
+
+    private OrcidClient orcidClientMock = mock(OrcidClient.class);
 
     Community community;
     Collection collection1;
@@ -128,6 +141,9 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
 
             item = installItemService.installItem(context, is);
 
+            ((OrcidServiceFactoryImpl) OrcidServiceFactory.getInstance()).setOrcidClient(orcidClientMock);
+            when(orcidClientMock.expandedSearch(any(), anyInt(), anyInt())).thenReturn(new ExpandedSearch());
+
             context.restoreAuthSystemState();
         } catch (AuthorizeException ex) {
             log.error("Authorization Error in init", ex);
@@ -136,6 +152,11 @@ public class ItemServiceIT extends AbstractIntegrationTestWithDatabase {
             log.error("SQL Error in init", ex);
             fail("SQL Error in init: " + ex.getMessage());
         }
+    }
+
+    @After
+    public void after() {
+        ((OrcidServiceFactoryImpl) OrcidServiceFactory.getInstance()).setOrcidClient(orcidClient);
     }
 
     @Test

@@ -9,6 +9,8 @@ package org.dspace.app.rest;
 
 import static com.jayway.jsonpath.JsonPath.read;
 import static org.dspace.app.rest.matcher.MetadataMatcher.matchMetadata;
+import static org.dspace.builder.RelationshipBuilder.createRelationshipBuilder;
+import static org.dspace.builder.RelationshipTypeBuilder.createRelationshipTypeBuilder;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -18,6 +20,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -78,6 +81,7 @@ import org.dspace.eperson.EPerson;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.RestMediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -1034,11 +1038,11 @@ public class RelationshipRestRepositoryIT extends AbstractEntityIntegrationTest 
         list = itemService.getMetadata(publication1, "dc", "contributor", Item.ANY, Item.ANY);
         assertEquals(10, list.size()); //same size as authors
         list = itemService.getMetadata(publication1, "dc", Item.ANY, Item.ANY, Item.ANY);
-        assertEquals(15, list.size()); //also includes title, 3 date fields, uri
+        assertEquals(16, list.size()); //also includes title, 3 date fields, uri
         list = itemService.getMetadata(publication1, Item.ANY, Item.ANY, Item.ANY, Item.ANY);
         // also includes type, 3 relation.isAuthorOfPublication and 3 relation.isAuthorOfPublication.latestForDiscovery
         // values
-        assertEquals(22, list.size());
+        assertEquals(23, list.size());
 
         } finally {
             RelationshipBuilder.deleteRelationship(idRef1.get());
@@ -2260,22 +2264,25 @@ public class RelationshipRestRepositoryIT extends AbstractEntityIntegrationTest 
 
         // We're creating a Relationship of type isOrgUnitOfPerson between an author and an orgunit
         Relationship relationship1 = RelationshipBuilder
-            .createRelationshipBuilder(context, author1, orgUnit1, isOrgUnitOfPersonRelationshipType).build();
+            .createRelationshipBuilder(context, author1, orgUnit1, isOrgUnitOfPersonRelationshipType, -1, -1).build();
 
         Relationship relationshipOrgunitExtra = RelationshipBuilder
-                .createRelationshipBuilder(context, author1, orgUnit2, isOrgUnitOfPersonRelationshipType).build();
+                .createRelationshipBuilder(context, author1, orgUnit2,
+                                           isOrgUnitOfPersonRelationshipType, -1, -1).build();
 
         // We're creating a Relationship of type isOrgUnitOfPerson between a different author and the same orgunit
         Relationship relationshipAuthorExtra = RelationshipBuilder
-            .createRelationshipBuilder(context, author2, orgUnit1, isOrgUnitOfPersonRelationshipType).build();
+            .createRelationshipBuilder(context, author2, orgUnit1, isOrgUnitOfPersonRelationshipType, -1, -1).build();
 
         // We're creating a Relationship of type isOrgUnitOfProject between a project and an orgunit
         Relationship relationship2 = RelationshipBuilder
-            .createRelationshipBuilder(context, project1, orgUnit1, isOrgUnitOfProjectRelationshipType).build();
+            .createRelationshipBuilder(context, project1, orgUnit1, isOrgUnitOfProjectRelationshipType,
+                                       -1, -1).build();
 
         // We're creating a Relationship of type isAuthorOfPublication between a publication and an author
         Relationship relationship3 = RelationshipBuilder
-            .createRelationshipBuilder(context, publication1, author1, isAuthorOfPublicationRelationshipType).build();
+            .createRelationshipBuilder(context, publication1, author1,
+                                       isAuthorOfPublicationRelationshipType, -1, -1).build();
 
         context.restoreAuthSystemState();
         // Perform a GET request to the searchByLabel endpoint, asking for Relationships of type isOrgUnitOfPerson
@@ -3417,6 +3424,300 @@ public class RelationshipRestRepositoryIT extends AbstractEntityIntegrationTest 
                    .andExpect(jsonPath("$.page.number", is(5)))
                    .andExpect(jsonPath("$.page.totalPages", is(1)))
                    .andExpect(jsonPath("$.page.totalElements", is(2)));
+    }
+
+    @Test
+    public void createPublicationHiddenRelationship() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Item userProfile = ItemBuilder.createItem(context, col1)
+            .withTitle("User profile")
+            .withDspaceObjectOwner(user1)
+            .build();
+
+        RelationshipType hiddenResearchOutput = createRelationshipTypeBuilder(context, null,
+            entityTypeService.findByEntityType(context, "Person"), "isResearchoutputsHiddenFor",
+            "notDisplayingResearchoutputs", 0, null, 0, null).build();
+
+        context.setCurrentUser(user1);
+        context.restoreAuthSystemState();
+
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+        try {
+            String leftwardValue = "Name variant test left";
+            String rightwardValue = "Name variant test right";
+
+            getClient(getAuthToken(eperson.getEmail(), password))
+                .perform(post("/api/core/relationships")
+                    .param("relationshipType", hiddenResearchOutput.getID().toString())
+                    .param("leftwardValue", leftwardValue)
+                    .param("rightwardValue", rightwardValue)
+                    .contentType(MediaType.parseMediaType(RestMediaTypes.TEXT_URI_LIST_VALUE))
+                    .content("https://localhost:8080/server/api/core/items/" + publication1.getID() + "\n" +
+                        "https://localhost:8080/server/api/core/items/" + userProfile.getID()))
+                .andExpect(status().isForbidden());
+
+            getClient(getAuthToken(user1.getEmail(), password))
+                .perform(post("/api/core/relationships")
+                .param("relationshipType", hiddenResearchOutput.getID().toString())
+                .param("leftwardValue", leftwardValue)
+                .param("rightwardValue", rightwardValue)
+                .contentType(MediaType.parseMediaType(RestMediaTypes.TEXT_URI_LIST_VALUE))
+                .content("https://localhost:8080/server/api/core/items/" + publication1.getID() + "\n" +
+                    "https://localhost:8080/server/api/core/items/" + userProfile.getID()))
+                .andExpect(status().isCreated())
+                .andDo(result -> idRef.set(read(result.getResponse().getContentAsString(), "$.id")));
+
+            getClient().perform(get("/api/core/relationships/" + idRef))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(idRef.get())))
+                .andExpect(jsonPath("$.leftwardValue", containsString(leftwardValue)))
+                .andExpect(jsonPath("$.rightwardValue", containsString(rightwardValue)));
+
+        } finally {
+            if (idRef.get() != null) {
+                RelationshipBuilder.deleteRelationship(idRef.get());
+            }
+        }
+    }
+
+    @Test
+    public void createProjectHiddenRelationship() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Item userProfile = ItemBuilder.createItem(context, col1)
+            .withTitle("User profile")
+            .withDspaceObjectOwner(user1)
+            .build();
+
+        RelationshipType hiddenProject = createRelationshipTypeBuilder(context, null,
+            entityTypeService.findByEntityType(context, "Person"), "isProjectsHiddenFor",
+            "notDisplayingProjects", 0, null, 0, null).build();
+
+        context.setCurrentUser(user1);
+        context.restoreAuthSystemState();
+
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+        try {
+            String leftwardValue = "Name variant test left";
+            String rightwardValue = "Name variant test right";
+
+            getClient(getAuthToken(eperson.getEmail(), password))
+                .perform(post("/api/core/relationships")
+                    .param("relationshipType", hiddenProject.getID().toString())
+                    .param("leftwardValue", leftwardValue)
+                    .param("rightwardValue", rightwardValue)
+                    .contentType(MediaType.parseMediaType(RestMediaTypes.TEXT_URI_LIST_VALUE))
+                    .content("https://localhost:8080/server/api/core/items/" + project1.getID() + "\n" +
+                        "https://localhost:8080/server/api/core/items/" + userProfile.getID()))
+                .andExpect(status().isForbidden());
+
+            getClient(getAuthToken(user1.getEmail(), password))
+                .perform(post("/api/core/relationships")
+                .param("relationshipType", hiddenProject.getID().toString())
+                .param("leftwardValue", leftwardValue)
+                .param("rightwardValue", rightwardValue)
+                .contentType(MediaType.parseMediaType(RestMediaTypes.TEXT_URI_LIST_VALUE))
+                .content("https://localhost:8080/server/api/core/items/" + project1.getID() + "\n" +
+                    "https://localhost:8080/server/api/core/items/" + userProfile.getID()))
+                .andExpect(status().isCreated())
+                .andDo(result -> idRef.set(read(result.getResponse().getContentAsString(), "$.id")));
+
+            getClient().perform(get("/api/core/relationships/" + idRef))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(idRef.get())))
+                .andExpect(jsonPath("$.leftwardValue", containsString(leftwardValue)))
+                .andExpect(jsonPath("$.rightwardValue", containsString(rightwardValue)));
+
+        } finally {
+            if (idRef.get() != null) {
+                RelationshipBuilder.deleteRelationship(idRef.get());
+            }
+        }
+    }
+
+    @Test
+    public void createPublicationSelectedRelationship() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Item userProfile = ItemBuilder.createItem(context, col1)
+            .withTitle("User profile")
+            .withDspaceObjectOwner(user1)
+            .build();
+
+        RelationshipType selectedResearchOutput = createRelationshipTypeBuilder(context, null,
+            entityTypeService.findByEntityType(context, "Person"), "isResearchoutputsSelectedFor",
+            "hasSelectedResearchoutputs", 0, null, 0, null).build();
+
+        context.setCurrentUser(user1);
+        context.restoreAuthSystemState();
+
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+        try {
+            String leftwardValue = "Name variant test left";
+            String rightwardValue = "Name variant test right";
+
+            getClient(getAuthToken(eperson.getEmail(), password))
+                .perform(post("/api/core/relationships")
+                    .param("relationshipType", selectedResearchOutput.getID().toString())
+                    .param("leftwardValue", leftwardValue)
+                    .param("rightwardValue", rightwardValue)
+                    .contentType(MediaType.parseMediaType(RestMediaTypes.TEXT_URI_LIST_VALUE))
+                    .content("https://localhost:8080/server/api/core/items/" + publication1.getID() + "\n" +
+                        "https://localhost:8080/server/api/core/items/" + userProfile.getID()))
+                .andExpect(status().isForbidden());
+
+            getClient(getAuthToken(user1.getEmail(), password))
+                .perform(post("/api/core/relationships")
+                .param("relationshipType", selectedResearchOutput.getID().toString())
+                .param("leftwardValue", leftwardValue)
+                .param("rightwardValue", rightwardValue)
+                .contentType(MediaType.parseMediaType(RestMediaTypes.TEXT_URI_LIST_VALUE))
+                .content("https://localhost:8080/server/api/core/items/" + publication1.getID() + "\n" +
+                    "https://localhost:8080/server/api/core/items/" + userProfile.getID()))
+                .andExpect(status().isCreated())
+                .andDo(result -> idRef.set(read(result.getResponse().getContentAsString(), "$.id")));
+
+            getClient().perform(get("/api/core/relationships/" + idRef))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(idRef.get())))
+                .andExpect(jsonPath("$.leftwardValue", containsString(leftwardValue)))
+                .andExpect(jsonPath("$.rightwardValue", containsString(rightwardValue)));
+
+        } finally {
+            if (idRef.get() != null) {
+                RelationshipBuilder.deleteRelationship(idRef.get());
+            }
+        }
+    }
+
+    @Test
+    public void createProjectSelectedRelationship() throws Exception {
+        context.turnOffAuthorisationSystem();
+
+        Item userProfile = ItemBuilder.createItem(context, col1)
+            .withTitle("User profile")
+            .withDspaceObjectOwner(user1)
+            .build();
+
+        RelationshipType selectedProject = createRelationshipTypeBuilder(context, null,
+            entityTypeService.findByEntityType(context, "Person"), "isProjectsSelectedFor",
+            "hasSelectedProjects", 0, null, 0, null).build();
+
+        context.setCurrentUser(user1);
+        context.restoreAuthSystemState();
+
+        AtomicReference<Integer> idRef = new AtomicReference<>();
+        try {
+            String leftwardValue = "Name variant test left";
+            String rightwardValue = "Name variant test right";
+
+            getClient(getAuthToken(eperson.getEmail(), password))
+                .perform(post("/api/core/relationships")
+                    .param("relationshipType", selectedProject.getID().toString())
+                    .param("leftwardValue", leftwardValue)
+                    .param("rightwardValue", rightwardValue)
+                    .contentType(MediaType.parseMediaType(RestMediaTypes.TEXT_URI_LIST_VALUE))
+                    .content("https://localhost:8080/server/api/core/items/" + project1.getID() + "\n" +
+                        "https://localhost:8080/server/api/core/items/" + userProfile.getID()))
+                .andExpect(status().isForbidden());
+
+            getClient(getAuthToken(user1.getEmail(), password))
+                .perform(post("/api/core/relationships")
+                .param("relationshipType", selectedProject.getID().toString())
+                .param("leftwardValue", leftwardValue)
+                .param("rightwardValue", rightwardValue)
+                .contentType(MediaType.parseMediaType(RestMediaTypes.TEXT_URI_LIST_VALUE))
+                .content("https://localhost:8080/server/api/core/items/" + project1.getID() + "\n" +
+                    "https://localhost:8080/server/api/core/items/" + userProfile.getID()))
+                .andExpect(status().isCreated())
+                .andDo(result -> idRef.set(read(result.getResponse().getContentAsString(), "$.id")));
+
+            getClient().perform(get("/api/core/relationships/" + idRef))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(idRef.get())))
+                .andExpect(jsonPath("$.leftwardValue", containsString(leftwardValue)))
+                .andExpect(jsonPath("$.rightwardValue", containsString(rightwardValue)));
+
+        } finally {
+            if (idRef.get() != null) {
+                RelationshipBuilder.deleteRelationship(idRef.get());
+            }
+        }
+    }
+
+    @Test
+    public void deletePublicationSelectedRelationship() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        Item userProfile = ItemBuilder.createItem(context, col1)
+            .withTitle("User profile")
+            .withDspaceObjectOwner(user1)
+            .build();
+
+        RelationshipType selectedResearchOutput = createRelationshipTypeBuilder(context, null,
+            entityTypeService.findByEntityType(context, "Person"), "isResearchoutputsSelectedFor",
+            "hasSelectedResearchoutputs", 0, null, 0, null).build();
+
+        Relationship relationship = createRelationshipBuilder(context, publication1,
+            userProfile, selectedResearchOutput).build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(eperson.getEmail(), password))
+            .perform(delete("/api/core/relationships/" + relationship.getID()))
+            .andExpect(status().isForbidden());
+
+        assertThat(context.reloadEntity(relationship), notNullValue());
+
+        getClient(getAuthToken(user1.getEmail(), password))
+            .perform(delete("/api/core/relationships/" + relationship.getID()))
+            .andExpect(status().isNoContent());
+
+        assertThat(context.reloadEntity(relationship), nullValue());
+
+    }
+
+    @Test
+    public void putPublicationSelectedRelationship() throws Exception {
+
+        context.turnOffAuthorisationSystem();
+
+        context.turnOffAuthorisationSystem();
+
+        Item userProfile = ItemBuilder.createItem(context, col1)
+            .withTitle("User profile")
+            .withDspaceObjectOwner(user1)
+            .build();
+
+        RelationshipType selectedResearchOutput = createRelationshipTypeBuilder(context, null,
+            entityTypeService.findByEntityType(context, "Person"), "isResearchoutputsSelectedFor",
+            "hasSelectedResearchoutputs", 0, null, 0, null).build();
+
+        Relationship relationship = createRelationshipBuilder(context, publication1,
+            userProfile, selectedResearchOutput).build();
+
+        context.restoreAuthSystemState();
+
+        getClient(getAuthToken(eperson.getEmail(), password))
+            .perform(put("/api/core/relationships/" + relationship.getID() + "/leftItem")
+            .contentType(MediaType.parseMediaType("text/uri-list"))
+                .content("https://localhost:8080/server/api/core/items/" + publication2.getID()))
+            .andExpect(status().isForbidden());
+
+        relationship = context.reloadEntity(relationship);
+        assertThat(relationship.getLeftItem(), is(publication1));
+
+        getClient(getAuthToken(user1.getEmail(), password))
+            .perform(put("/api/core/relationships/" + relationship.getID() + "/leftItem")
+                .contentType(MediaType.parseMediaType("text/uri-list"))
+                .content("https://localhost:8080/server/api/core/items/" + publication2.getID()))
+            .andExpect(status().isOk());
+
+        relationship = context.reloadEntity(relationship);
+        assertThat(relationship.getLeftItem(), is(publication2));
+
     }
 
     @Test

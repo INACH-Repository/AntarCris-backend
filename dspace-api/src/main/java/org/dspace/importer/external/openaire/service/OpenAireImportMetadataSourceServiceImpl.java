@@ -12,6 +12,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -21,6 +22,8 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.dspace.content.Item;
 import org.dspace.importer.external.datamodel.ImportRecord;
 import org.dspace.importer.external.datamodel.Query;
@@ -46,6 +49,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetadataSourceService<Element>
         implements QuerySource {
+
+    private static Logger log = LogManager.getLogger(OpenAireImportMetadataSourceServiceImpl.class);
 
     @Autowired(required = true)
     protected ConfigurationService configurationService;
@@ -248,12 +253,10 @@ public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetad
             Response response = invocationBuilder.get();
             if (response.getStatus() == 200) {
                 String responseString = response.readEntity(String.class);
-
                 SAXBuilder saxBuilder = new SAXBuilder();
                 Document document = saxBuilder.build(new StringReader(responseString));
                 Element root = document.getRootElement();
-
-                XPathExpression<Element> xpath = XPathFactory.instance().compile("//header/total",
+                XPathExpression<Element> xpath = XPathFactory.instance().compile("/response/header/total",
                     Filters.element(), null);
 
                 Element totalItem = xpath.evaluateFirst(root);
@@ -329,26 +332,23 @@ public class OpenAireImportMetadataSourceServiceImpl extends AbstractImportMetad
     }
 
     private List<Element> splitToRecords(String recordsSrc) {
-
         try {
             SAXBuilder saxBuilder = new SAXBuilder();
             Document document = saxBuilder.build(new StringReader(recordsSrc));
             Element root = document.getRootElement();
-
-            List namespaces = Arrays.asList(
+            List<Namespace> namespaces = Arrays.asList(
                 Namespace.getNamespace("dri", "http://www.driver-repository.eu/namespace/dri"),
                 Namespace.getNamespace("oaf", "http://namespace.openaire.eu/oaf"),
                 Namespace.getNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance"));
-            XPathExpression<Element> xpath = XPathFactory.instance().compile("//results/result",
+            XPathExpression<Element> xpath = XPathFactory.instance().compile("/response/results/result",
                 Filters.element(), null, namespaces);
 
             List<Element> recordsList = xpath.evaluate(root);
             return recordsList;
         } catch (JDOMException | IOException e) {
-            return null;
+            log.error(e.getMessage(), e);
+            return new LinkedList<Element>();
         }
     }
-
-
 
 }

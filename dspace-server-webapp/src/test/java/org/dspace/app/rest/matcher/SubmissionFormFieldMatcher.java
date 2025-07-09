@@ -14,6 +14,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
+import java.util.Map;
+
 import org.hamcrest.Matcher;
 
 /**
@@ -25,6 +27,25 @@ import org.hamcrest.Matcher;
 public class SubmissionFormFieldMatcher {
 
     private SubmissionFormFieldMatcher() {
+    }
+
+    public static Matcher<? super Object> matchFormFieldDefinition(String type, String label, String mandatoryMessage,
+        boolean repeatable, String hints, String metadata) {
+        return matchFormFieldDefinition(type, label, null, mandatoryMessage, repeatable, hints, null, metadata,
+            null);
+    }
+
+    public static Matcher<? super Object> matchFormFieldDefinition(String type, String label, String mandatoryMessage,
+                                                                   boolean repeatable, String hints, String style,
+                                                                   String metadata) {
+        return matchFormFieldDefinition(type, label, null, mandatoryMessage, repeatable, hints, style, metadata);
+    }
+
+    public static Matcher<? super Object> matchFormFieldDefinition(String type, String label, String mandatoryMessage,
+                                                                   boolean repeatable, String hints, String style,
+                                                                   String metadata, String controlledVocabulary) {
+        return matchFormFieldDefinition(type, label, null, mandatoryMessage, repeatable, hints, style, metadata,
+            controlledVocabulary);
     }
 
     /**
@@ -135,6 +156,37 @@ public class SubmissionFormFieldMatcher {
     }
 
     /**
+     * Creates a matcher to verify the properties of a selectableMetadata entry.
+     *
+     * @param metadata the metadata field to match (e.g., "dc.identifier.doi")
+     * @param label the label associated with the metadata field (e.g., "DOI")
+     * @param closed whether the metadata field is closed (true or false)
+     * @return a Matcher that verifies the "metadata", "label", and "closed" properties of a selectableMetadata object
+     */
+    public static Matcher<Object> matchSelectableMetadata(String metadata, String label, boolean closed) {
+        return allOf(
+            hasJsonPath("$.metadata", is(metadata)),
+            hasJsonPath("$.label", is(label)),
+            hasJsonPath("$.closed", is(closed))
+        );
+    }
+
+    /**
+     * Creates a matcher to validate an object representing a language code in a JSON response.
+     *
+     * @param display The expected value of the "display" field, representing the name of the language.
+     * @param code    The expected value of the "code" field, representing the language code.
+     * @return A {@link Matcher} that validates the "display" and "code" fields of the JSON object.
+     */
+    public static Matcher<Object> matchLanguageCode(String display, String code) {
+        return allOf(
+            hasJsonPath("$.display", is(display)),
+            hasJsonPath("$.code", is(code))
+        );
+    }
+
+
+    /**
      * Check the json representation of an open relationship field.
      * This is a combination of an entity relationship lookup and a plain text metadata entry field
      *
@@ -222,5 +274,32 @@ public class SubmissionFormFieldMatcher {
             hasJsonPath("$.hints", containsString(hints)),
             hasNoJsonPath("$.input.type"),
             hasNoJsonPath("$.selectableMetadata"));
+    }
+
+    /**
+     * Check the json representation of a submission form to verify that it has the
+     * expected label and the expected visibilities.
+     *
+     * @param  label      the label to check
+     * @param  visibility the visibilities to check
+     * @return            a Matcher for all the condition above
+     */
+    public static Matcher<? super Object> matchFormWithVisibility(String label, Map<String, String> visibility) {
+        return allOf(
+            hasJsonPath("$.label", containsString(label)),
+            hasJsonPath("$.visibility", is(visibility)));
+    }
+
+    /**
+     * Check the json representation of a submission form to verify that it has the
+     * expected label and it has not the visibility attribute.
+     *
+     * @param  label the label to check
+     * @return       a Matcher for all the condition above
+     */
+    public static Matcher<? super Object> matchFormWithoutVisibility(String label) {
+        return allOf(
+            hasJsonPath("$.label", containsString(label)),
+            hasNoJsonPath("$.visibility"));
     }
 }

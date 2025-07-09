@@ -31,6 +31,7 @@ import org.dspace.discovery.SearchUtils;
 import org.dspace.discovery.SolrSearchCore;
 import org.dspace.discovery.SolrServiceIndexPlugin;
 import org.dspace.discovery.indexobject.factory.IndexFactory;
+import org.dspace.services.ConfigurationService;
 import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.util.SolrUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,8 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
     protected List<SolrServiceIndexPlugin> solrServiceIndexPlugins;
     @Autowired
     protected SolrSearchCore solrSearchCore;
+    @Autowired
+    protected ConfigurationService ConfigurationService;
 
     @Override
     public SolrInputDocument buildDocument(Context context, T indexableObject) throws SQLException, IOException {
@@ -105,7 +108,8 @@ public abstract class IndexFactoryImpl<T extends IndexableObject, S> implements 
         final SolrClient solr = solrSearchCore.getSolr();
         if (solr != null) {
             // If full text stream(s) were passed in, we'll index them as part of the SolrInputDocument
-            if (streams != null && !streams.isEmpty()) {
+            if (!ConfigurationService.getBooleanProperty("discovery.ignore-fulltext", false) && streams != null
+                    && !streams.isEmpty()) {
                 // limit full text indexing to first 100,000 characters unless configured otherwise
                 final int charLimit = DSpaceServicesFactory.getInstance().getConfigurationService()
                         .getIntProperty("discovery.solr.fulltext.charLimit",

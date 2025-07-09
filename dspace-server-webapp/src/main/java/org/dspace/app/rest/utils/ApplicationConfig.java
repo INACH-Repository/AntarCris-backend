@@ -35,6 +35,9 @@ import org.springframework.context.annotation.Configuration;
     "org.dspace.app.configuration",
     "org.dspace.iiif",
     "org.dspace.app.iiif",
+    "org.dspace.app.rest.link",
+    "org.dspace.app.rest.converter.factory",
+    "org.dspace.app.scheduler",
     "org.dspace.app.ldn"
 })
 public class ApplicationConfig {
@@ -47,6 +50,11 @@ public class ApplicationConfig {
     // Can be overridden in DSpace configuration
     @Value("${iiif.cors.allowed-origins}")
     private String[] iiifCorsAllowedOrigins;
+
+    // Allowed IIIF CORS origins ("Access-Control-Allow-Origin" header)
+    // Can be overridden in DSpace configuration
+    @Value("${rest.cors.bitstream-allowed-origins}")
+    private String[] bitstreamCorsAllowedOrigins;
 
     // Allowed Signposting CORS origins ("Access-Control-Allow-Origin" header)
     // Can be overridden in DSpace configuration
@@ -62,6 +70,11 @@ public class ApplicationConfig {
     // Defaults to true. Can be overridden in DSpace configuration
     @Value("${iiif.cors.allow-credentials:true}")
     private boolean iiifCorsAllowCredentials;
+
+    // Whether to allow credentials (cookies) in CORS requests ("Access-Control-Allow-Credentials" header)
+    // Defaults to true. Can be overridden in DSpace configuration
+    @Value("${rest.cors.bitstream-allow-credentials:true}")
+    private boolean bitstreamsCorsAllowCredentials;
 
     // Whether to allow credentials (cookies) in CORS requests ("Access-Control-Allow-Credentials" header)
     // Defaults to true. Can be overridden in DSpace configuration
@@ -118,6 +131,14 @@ public class ApplicationConfig {
     }
 
     /**
+     * Returns the bitstream.cors.allowed-origins (for Bitstream access) defined in DSpace configuration.
+     * @return allowed origins
+     */
+    public String[] getBitstreamAllowedOriginsConfig() {
+        return this.bitstreamCorsAllowedOrigins;
+    }
+
+    /**
      * Returns the signposting.cors.allowed-origins (for Signposting access) defined in DSpace configuration.
      * @return allowed origins
      */
@@ -149,6 +170,15 @@ public class ApplicationConfig {
      */
     public boolean getIiifAllowCredentials() {
         return iiifCorsAllowCredentials;
+    }
+
+    /**
+     * Return whether to allow credentials (cookies) on IIIF requests. This is used to set the
+     * CORS "Access-Control-Allow-Credentials" header in Application class. Defaults to false.
+     * @return true or false
+     */
+    public boolean getBitstreamsAllowCredentials() {
+        return bitstreamsCorsAllowCredentials;
     }
 
     /**

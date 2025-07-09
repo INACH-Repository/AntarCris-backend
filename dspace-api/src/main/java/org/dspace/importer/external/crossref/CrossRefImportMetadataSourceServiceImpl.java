@@ -158,6 +158,9 @@ public class CrossRefImportMetadataSourceServiceImpl extends AbstractImportMetad
             }
             Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
             String response = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+            if (StringUtils.isEmpty(response)) {
+                return results;
+            }
             JsonNode jsonNode = convertStringJsonToJsonNode(response);
             Iterator<JsonNode> nodes = jsonNode.at("/message/items").iterator();
             while (nodes.hasNext()) {
@@ -197,6 +200,9 @@ public class CrossRefImportMetadataSourceServiceImpl extends AbstractImportMetad
             uriBuilder.setPath(uriBuilder.getPath() + "/" + ID);
             Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
             String responseString = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+            if (StringUtils.isEmpty(responseString)) {
+                return results;
+            }
             JsonNode jsonNode = convertStringJsonToJsonNode(responseString);
             JsonNode messageNode = jsonNode.at("/message");
             if (!messageNode.isMissingNode()) {
@@ -251,6 +257,9 @@ public class CrossRefImportMetadataSourceServiceImpl extends AbstractImportMetad
             }
             Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
             String resp = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+            if (StringUtils.isEmpty(resp)) {
+                return results;
+            }
             JsonNode jsonNode = convertStringJsonToJsonNode(resp);
             Iterator<JsonNode> nodes = jsonNode.at("/message/items").iterator();
             while (nodes.hasNext()) {
@@ -291,6 +300,9 @@ public class CrossRefImportMetadataSourceServiceImpl extends AbstractImportMetad
             uriBuilder.addParameter("query", query.getParameterAsClass("query", String.class));
             Map<String, Map<String, String>> params = new HashMap<String, Map<String,String>>();
             String responseString = liveImportClient.executeHttpGetRequest(1000, uriBuilder.toString(), params);
+            if (StringUtils.isEmpty(responseString)) {
+                return 0;
+            }
             JsonNode jsonNode = convertStringJsonToJsonNode(responseString);
             return jsonNode.at("/message/total-results").asInt();
         }

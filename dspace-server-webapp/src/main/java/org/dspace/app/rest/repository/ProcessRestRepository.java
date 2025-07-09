@@ -6,7 +6,6 @@
  * http://www.dspace.org/license/
  */
 package org.dspace.app.rest.repository;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -27,7 +26,6 @@ import org.dspace.app.rest.model.BitstreamRest;
 import org.dspace.app.rest.model.ProcessRest;
 import org.dspace.app.rest.projection.Projection;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.service.AuthorizeService;
 import org.dspace.content.Bitstream;
 import org.dspace.content.ProcessStatus;
 import org.dspace.core.Context;
@@ -58,10 +56,6 @@ public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Int
 
     @Autowired
     private ConverterService converterService;
-
-
-    @Autowired
-    private AuthorizeService authorizeService;
 
     @Autowired
     private EPersonService epersonService;
@@ -109,8 +103,8 @@ public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Int
             Context context = obtainContext();
             long total = processService.countByUser(context, context.getCurrentUser());
             List<Process> processes = processService.findByUser(context, context.getCurrentUser(),
-                                                                pageable.getPageSize(),
-                                                                Math.toIntExact(pageable.getOffset()));
+                pageable.getPageSize(),
+                Math.toIntExact(pageable.getOffset()));
             return converter.toRestPage(processes, pageable, total, utils.obtainProjection());
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -138,11 +132,6 @@ public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Int
         if (process == null) {
             throw new ResourceNotFoundException("Process with id " + processId + " was not found");
         }
-        if ((context.getCurrentUser() == null) || (!context.getCurrentUser()
-                                                           .equals(process.getEPerson()) && !authorizeService
-            .isAdmin(context))) {
-            throw new AuthorizeException("The current user is not eligible to view the process with id: " + processId);
-        }
         return process;
     }
 
@@ -164,12 +153,13 @@ public class ProcessRestRepository extends DSpaceRestRepository<ProcessRest, Int
     }
 
     @Override
-    protected void delete(Context context, Integer integer)
+    @PreAuthorize("hasPermission(#id, 'PROCESS', 'DELETE')")
+    protected void delete(Context context, Integer id)
         throws AuthorizeException, RepositoryMethodNotImplementedException {
         try {
-            processService.delete(context, processService.find(context, integer));
+            processService.delete(context, processService.find(context, id));
         } catch (SQLException | IOException e) {
-            log.error("Something went wrong trying to find Process with id: " + integer, e);
+            log.error("Something went wrong trying to find Process with id: " + id, e);
             throw new RuntimeException(e.getMessage(), e);
         }
     }

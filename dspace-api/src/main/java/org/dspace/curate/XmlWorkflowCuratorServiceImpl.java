@@ -145,6 +145,8 @@ public class XmlWorkflowCuratorServiceImpl
             if (StringUtils.isNotEmpty(step.queue)) { // Step's tasks are to be queued.
                 curator.queue(c, item.getID().toString(), step.queue);
             } else { // Step's tasks are to be run now.
+                // Task is configured to be run automatically
+                curator.txScope = Curator.TxScope.CURATION;
                 curator.curate(c, item);
 
                 for (Task task : step.tasks) {

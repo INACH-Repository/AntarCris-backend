@@ -41,6 +41,7 @@ public class VersionedHandleIdentifierProviderIT extends AbstractIdentifierProvi
                 .build();
         collection = CollectionBuilder.createCollection(context, parentCommunity)
                 .withName("Collection")
+                .withEntityType("Publication")
                 .build();
     }
 

@@ -14,6 +14,8 @@ import static org.apache.http.client.methods.RequestBuilder.put;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -49,15 +51,20 @@ import org.dspace.orcid.model.OrcidProfileSectionType;
 import org.dspace.orcid.model.OrcidTokenResponseDTO;
 import org.dspace.util.ThrowingSupplier;
 import org.orcid.jaxb.model.v3.release.record.Address;
+import org.orcid.jaxb.model.v3.release.record.Education;
+import org.orcid.jaxb.model.v3.release.record.Employment;
 import org.orcid.jaxb.model.v3.release.record.Funding;
 import org.orcid.jaxb.model.v3.release.record.Keyword;
 import org.orcid.jaxb.model.v3.release.record.OtherName;
 import org.orcid.jaxb.model.v3.release.record.Person;
 import org.orcid.jaxb.model.v3.release.record.PersonExternalIdentifier;
+import org.orcid.jaxb.model.v3.release.record.Qualification;
+import org.orcid.jaxb.model.v3.release.record.Record;
 import org.orcid.jaxb.model.v3.release.record.ResearcherUrl;
 import org.orcid.jaxb.model.v3.release.record.Work;
 import org.orcid.jaxb.model.v3.release.record.WorkBulk;
 import org.orcid.jaxb.model.v3.release.record.summary.Works;
+import org.orcid.jaxb.model.v3.release.search.expanded.ExpandedSearch;
 
 /**
  * Implementation of {@link OrcidClient}.
@@ -85,6 +92,9 @@ public class OrcidClientImpl implements OrcidClient {
         Map<Class<?>, String> map = new HashMap<Class<?>, String>();
         map.put(Work.class, OrcidEntityType.PUBLICATION.getPath());
         map.put(Funding.class, OrcidEntityType.FUNDING.getPath());
+        map.put(Employment.class, OrcidProfileSectionType.AFFILIATION.getPath());
+        map.put(Education.class, OrcidProfileSectionType.EDUCATION.getPath());
+        map.put(Qualification.class, OrcidProfileSectionType.QUALIFICATION.getPath());
         map.put(Address.class, OrcidProfileSectionType.COUNTRY.getPath());
         map.put(OtherName.class, OrcidProfileSectionType.OTHER_NAMES.getPath());
         map.put(ResearcherUrl.class, OrcidProfileSectionType.RESEARCHER_URLS.getPath());
@@ -113,9 +123,20 @@ public class OrcidClientImpl implements OrcidClient {
     }
 
     @Override
+    public OrcidTokenResponseDTO getWebhookAccessToken() {
+        return getClientCredentialsAccessToken("/webhook");
+    }
+
+    @Override
     public Person getPerson(String accessToken, String orcid) {
         HttpUriRequest httpUriRequest = buildGetUriRequest(accessToken, "/" + orcid + "/person");
         return executeAndUnmarshall(httpUriRequest, false, Person.class);
+    }
+
+    @Override
+    public Record getRecord(String accessToken, String orcid) {
+        HttpUriRequest httpUriRequest = buildGetUriRequest(accessToken, "/" + orcid + "/record");
+        return executeAndUnmarshall(httpUriRequest, false, Record.class);
     }
 
     @Override
@@ -177,6 +198,34 @@ public class OrcidClientImpl implements OrcidClient {
     @Override
     public OrcidResponse deleteByPutCode(String accessToken, String orcid, String putCode, String path) {
         return execute(buildDeleteUriRequest(accessToken, "/" + orcid + path + "/" + putCode), true);
+    }
+
+    @Override
+    public OrcidResponse registerWebhook(String accessToken, String orcid, String url) {
+        String webhookUrl = orcidConfiguration.getWebhookUrl();
+        String encodedUrl = encodeUrl(url);
+        return execute(buildPutUriRequest(accessToken, webhookUrl, "/" + orcid + "/webhook/" + encodedUrl), false);
+    }
+
+    @Override
+    public OrcidResponse unregisterWebhook(String accessToken, String orcid, String url) {
+        String webhookUrl = orcidConfiguration.getWebhookUrl();
+        String encodedUrl = encodeUrl(url);
+        return execute(buildDeleteUriRequest(accessToken, webhookUrl, "/" + orcid + "/webhook/" + encodedUrl), true);
+    }
+
+    @Override
+    public ExpandedSearch expandedSearch(String accessToken, String query, int start, int rows) {
+        String queryParams = formatExpandedSearchParameters(query, start, rows);
+        HttpUriRequest httpUriRequest = buildGetUriRequest(accessToken, "/expanded-search" + queryParams);
+        return executeAndUnmarshall(httpUriRequest, false, ExpandedSearch.class);
+    }
+
+    @Override
+    public ExpandedSearch expandedSearch(String query, int start, int rows) {
+        String queryParams = formatExpandedSearchParameters(query, start, rows);
+        HttpUriRequest httpUriRequest = buildGetUriRequestToPublicEndpoint("/expanded-search" + queryParams);
+        return executeAndUnmarshall(httpUriRequest, false, ExpandedSearch.class);
     }
 
     @Override
@@ -247,10 +296,27 @@ public class OrcidClientImpl implements OrcidClient {
             .build();
     }
 
+    private HttpUriRequest buildPutUriRequest(String accessToken, String baseUrl, String relativePath) {
+        return put(baseUrl + relativePath.trim())
+            .addHeader("Content-Type", "application/vnd.orcid+xml")
+            .addHeader("Authorization", "Bearer " + accessToken)
+            .build();
+    }
+
     private HttpUriRequest buildDeleteUriRequest(String accessToken, String relativePath) {
         return delete(orcidConfiguration.getApiUrl() + relativePath.trim())
             .addHeader("Authorization", "Bearer " + accessToken)
             .build();
+    }
+
+    private HttpUriRequest buildDeleteUriRequest(String accessToken, String baseUrl, String relativePath) {
+        return delete(baseUrl + relativePath.trim())
+            .addHeader("Authorization", "Bearer " + accessToken)
+            .build();
+    }
+
+    private String formatExpandedSearchParameters(String query, int start, int rows) {
+        return String.format("?q=%s&start=%s&rows=%s", query, start, rows);
     }
 
     private void executeSuccessful(HttpUriRequest httpUriRequest) {
@@ -402,7 +468,7 @@ public class OrcidClientImpl implements OrcidClient {
     private String getOrcidPathFromOrcidObjectType(Class<?> clazz) {
         String path = PATHS_MAP.get(clazz);
         if (path == null) {
-            throw new IllegalArgumentException("The given class is not an ORCID object's class: " + clazz);
+            throw new IllegalArgumentException("The given class is not a supported ORCID object's class: " + clazz);
         }
         return path;
     }
@@ -426,6 +492,14 @@ public class OrcidClientImpl implements OrcidClient {
         }
         String value = headers[0].getValue();
         return value.substring(value.lastIndexOf("/") + 1);
+    }
+
+    private String encodeUrl(String url) {
+        try {
+            return URLEncoder.encode(url, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            throw new OrcidClientException(e);
+        }
     }
 
 }

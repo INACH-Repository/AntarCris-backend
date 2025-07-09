@@ -23,7 +23,6 @@ import org.dspace.content.authority.Choice;
 import org.dspace.content.authority.ChoiceAuthority;
 import org.dspace.content.authority.Choices;
 import org.dspace.content.authority.service.ChoiceAuthorityService;
-import org.dspace.content.service.CollectionService;
 import org.dspace.core.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -46,12 +45,9 @@ public class VocabularyEntryLinkRepository extends AbstractDSpaceRestRepository
     private ChoiceAuthorityService cas;
 
     @Autowired
-    private CollectionService cs;
-
-    @Autowired
     private AuthorityUtils authorityUtils;
 
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("@vocabularySecurity.isVocabularyPublic(#name) || hasAuthority('AUTHENTICATED')")
     public Page<VocabularyEntryRest> filter(@Nullable HttpServletRequest request, String name,
                                           @Nullable Pageable optionalPageable, Projection projection) {
         Context context = obtainContext();
@@ -74,6 +70,7 @@ public class VocabularyEntryLinkRepository extends AbstractDSpaceRestRepository
                     "one of filter or entryID parameter is required for not scrollable vocabularies");
         }
         Choices choices = null;
+
         if (BooleanUtils.toBoolean(exact)) {
             choices = ca.getBestMatch(filter, context.getCurrentLocale().toString());
         } else if (StringUtils.isNotBlank(entryID)) {

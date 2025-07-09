@@ -49,6 +49,7 @@ import org.dspace.services.factory.DSpaceServicesFactory;
 import org.dspace.utils.DSpace;
 
 /**
+ *
  * @author Marsa Haoua
  * @author Pascal-Nicolas Becker
  */
@@ -63,6 +64,9 @@ public class DOIOrganiser {
     protected ItemService itemService;
     protected DOIService doiService;
     protected ConfigurationService configurationService;
+
+    protected boolean skipFilter;
+
     // This filter will override the default provider filter / behaviour
     protected Filter filter;
 
@@ -127,6 +131,8 @@ public class DOIOrganiser {
                           "Perform online deletion for all identifiers queued for deletion.");
         options.addOption("q", "quiet", false,
                           "Turn the command line output off.");
+        options.addOption("o", "offset", true, "The records offset");
+        options.addOption("li", "limit", true, "The records limit");
 
         Option filterDoi = Option.builder().optionalArg(true).longOpt("filter").hasArg().argName("filterName")
                 .desc("Use the specified filter name instead of the provider's filter. Defaults to a special " +
@@ -207,6 +213,17 @@ public class DOIOrganiser {
             organiser.list("deletion", null, null, DOIIdentifierProvider.TO_BE_DELETED);
         }
 
+        int limit = -1;
+        int offset = -1;
+
+        if (line.hasOption("li")) {
+            limit = Integer.valueOf(line.getOptionValue("li"));
+        }
+
+        if (line.hasOption("o")) {
+            offset = Integer.valueOf(line.getOptionValue("o"));
+        }
+
         DOIService doiService = IdentifierServiceFactory.getInstance().getDOIService();
         // Do we get a filter?
         if (line.hasOption("filter")) {
@@ -219,7 +236,7 @@ public class DOIOrganiser {
         if (line.hasOption('s')) {
             try {
                 List<DOI> dois = doiService
-                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_RESERVED));
+                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_RESERVED), offset, limit);
                 if (dois.isEmpty()) {
                     System.err.println("There are no objects in the database "
                                            + "that could be reserved.");
@@ -246,7 +263,7 @@ public class DOIOrganiser {
         if (line.hasOption('r')) {
             try {
                 List<DOI> dois = doiService
-                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_REGISTERED));
+                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_REGISTERED), offset, limit);
                 if (dois.isEmpty()) {
                     System.err.println("There are no objects in the database "
                                            + "that could be registered.");
@@ -276,7 +293,7 @@ public class DOIOrganiser {
                 List<DOI> dois = doiService.getDOIsByStatus(context, Arrays.asList(
                     DOIIdentifierProvider.UPDATE_BEFORE_REGISTRATION,
                     DOIIdentifierProvider.UPDATE_RESERVED,
-                    DOIIdentifierProvider.UPDATE_REGISTERED));
+                    DOIIdentifierProvider.UPDATE_REGISTERED), offset, limit);
                 if (dois.isEmpty()) {
                     System.err.println("There are no objects in the database "
                                            + "whose metadata needs an update.");
@@ -296,7 +313,7 @@ public class DOIOrganiser {
         if (line.hasOption('d')) {
             try {
                 List<DOI> dois = doiService
-                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_DELETED));
+                    .getDOIsByStatus(context, Arrays.asList(DOIIdentifierProvider.TO_BE_DELETED), offset, limit);
                 if (dois.isEmpty()) {
                     System.err.println("There are no objects in the database "
                                            + "that could be deleted.");
@@ -727,15 +744,8 @@ public class DOIOrganiser {
             DSpaceObject dso = itemService.find(context, UUID.fromString(identifier));
 
             if (null != dso) {
-                doiRow = doiService.findDOIByDSpaceObject(context, dso);
-
-                //Check if this Item has an Identifier, mint one if it doesn't
-                if (null == doiRow) {
-                    doi = provider.mint(context, dso, this.filter);
-                    doiRow = doiService.findByDoi(context,
-                                                  doi.substring(DOI.SCHEME.length()));
-                    return doiRow;
-                }
+                doi = provider.mint(context, dso, this.filter);
+                doiRow = doiService.findByDoi(context, doi.substring(DOI.SCHEME.length()));
                 return doiRow;
             } else {
                 throw new IllegalStateException("You specified an ItemID, that is not stored in our database.");
@@ -752,13 +762,8 @@ public class DOIOrganiser {
                         + "Cannot process specified handle as it does not identify an Item.");
             }
 
-            doiRow = doiService.findDOIByDSpaceObject(context, dso);
-
-            if (null == doiRow) {
-                doi = provider.mint(context, dso, this.filter);
-                doiRow = doiService.findByDoi(context,
-                                              doi.substring(DOI.SCHEME.length()));
-            }
+            doi = provider.mint(context, dso, this.filter);
+            doiRow = doiService.findByDoi(context, doi.substring(DOI.SCHEME.length()));
             return doiRow;
         }
         // detect DOI
@@ -778,8 +783,7 @@ public class DOIOrganiser {
                           + ex.codeToString(ex.getCode()), ex);
 
             if (!quiet) {
-                System.err.println("It wasn't possible to detect this DOI identifier: "
-                                       + identifier);
+                System.err.println("It wasn't possible to detect this DOI identifier: " + identifier);
             }
         }
 

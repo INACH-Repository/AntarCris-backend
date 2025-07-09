@@ -32,6 +32,18 @@ public class SubmissionAccessOptionRest extends BaseObjectRest<String> {
 
     private List<AccessConditionOptionRest> accessConditionOptions;
 
+    private boolean singleAccessCondition;
+
+    private boolean required;
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+
     public String getId() {
         return id;
     }
@@ -57,6 +69,14 @@ public class SubmissionAccessOptionRest extends BaseObjectRest<String> {
 
     public void setAccessConditionOptions(List<AccessConditionOptionRest> accessConditionOptions) {
         this.accessConditionOptions = accessConditionOptions;
+    }
+
+    public boolean isSingleAccessCondition() {
+        return singleAccessCondition;
+    }
+
+    public void setSingleAccessCondition(boolean singleAccessCondition) {
+        this.singleAccessCondition = singleAccessCondition;
     }
 
     @Override

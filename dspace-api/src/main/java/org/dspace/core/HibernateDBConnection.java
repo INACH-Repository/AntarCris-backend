@@ -20,6 +20,7 @@ import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.handle.Handle;
+import org.dspace.identifier.DOI;
 import org.dspace.storage.rdbms.DatabaseConfigVO;
 import org.hibernate.FlushMode;
 import org.hibernate.Hibernate;
@@ -111,6 +112,11 @@ public class HibernateDBConnection implements DBConnection<Session> {
     @Override
     public boolean isSessionAlive() {
         return sessionFactory.getCurrentSession() != null && sessionFactory.getCurrentSession().isOpen();
+    }
+
+    @Override
+    public void flush() throws SQLException {
+        getSession().flush();
     }
 
     /**
@@ -277,6 +283,11 @@ public class HibernateDBConnection implements DBConnection<Session> {
                         uncacheEntity(policy);
                     }
                 }
+            }
+
+            if (entity instanceof DOI) {
+                DOI doi = (DOI) entity;
+                uncacheEntity(doi.getDSpaceObject());
             }
 
             // ITEM

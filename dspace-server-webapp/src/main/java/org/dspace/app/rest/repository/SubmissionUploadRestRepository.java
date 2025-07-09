@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 import org.dspace.app.rest.model.AccessConditionOptionRest;
 import org.dspace.app.rest.model.SubmissionUploadRest;
 import org.dspace.app.rest.projection.Projection;
+import org.dspace.app.rest.utils.Utils;
 import org.dspace.core.Context;
 import org.dspace.submit.model.AccessConditionOption;
 import org.dspace.submit.model.UploadConfiguration;
@@ -44,6 +45,9 @@ public class SubmissionUploadRestRepository extends DSpaceRestRepository<Submiss
 
     @Autowired
     private SubmissionFormRestRepository submissionFormRestRepository;
+
+    @Autowired
+    private Utils utils;
 
     @Autowired
     private UploadConfigurationService uploadConfigurationService;
@@ -118,6 +122,7 @@ public class SubmissionUploadRestRepository extends DSpaceRestRepository<Submiss
         result.setMaxSize(config.getMaxSize());
         result.setRequired(config.isRequired());
         result.setName(config.getName());
+        result.setSingleAccessCondition(config.getSingleAccessCondition());
         return result;
     }
 }

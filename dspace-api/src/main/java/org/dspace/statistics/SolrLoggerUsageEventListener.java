@@ -8,6 +8,7 @@
 package org.dspace.statistics;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -50,7 +51,8 @@ public class SolrLoggerUsageEventListener extends AbstractUsageEventListener {
 
                 if (UsageEvent.Action.VIEW == ue.getAction()) {
                     if (ue.getRequest() != null) {
-                        solrLoggerService.postView(ue.getObject(), ue.getRequest(), currentUser, ue.getReferrer());
+                        solrLoggerService
+                            .postView(ue.getObject(), ue.getRequest(), currentUser, ue.getReferrer(), new Date());
                     } else {
                         solrLoggerService.postView(ue.getObject(), ue.getIp(), ue.getUserAgent(), ue.getXforwardedfor(),
                                                    currentUser, ue.getReferrer());
@@ -67,6 +69,8 @@ public class SolrLoggerUsageEventListener extends AbstractUsageEventListener {
                     UsageWorkflowEvent usageWorkflowEvent = (UsageWorkflowEvent) ue;
 
                     solrLoggerService.postWorkflow(usageWorkflowEvent);
+                } else if (UsageEvent.Action.LOGIN == ue.getAction()) {
+                    solrLoggerService.postLogin(ue.getObject(), ue.getRequest(), currentUser);
                 }
 
             } catch (Exception e) {

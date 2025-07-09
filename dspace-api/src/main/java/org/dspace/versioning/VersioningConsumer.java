@@ -19,6 +19,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.dspace.app.deduplication.service.DedupService;
 import org.dspace.content.EntityType;
 import org.dspace.content.Item;
 import org.dspace.content.Relationship;
@@ -30,6 +31,7 @@ import org.dspace.content.service.RelationshipService;
 import org.dspace.content.service.RelationshipTypeService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.core.exception.SQLRuntimeException;
 import org.dspace.discovery.IndexEventConsumer;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
@@ -38,6 +40,7 @@ import org.dspace.orcid.OrcidQueue;
 import org.dspace.orcid.factory.OrcidServiceFactory;
 import org.dspace.orcid.service.OrcidHistoryService;
 import org.dspace.orcid.service.OrcidQueueService;
+import org.dspace.utils.DSpace;
 import org.dspace.versioning.factory.VersionServiceFactory;
 import org.dspace.versioning.service.VersionHistoryService;
 import org.dspace.versioning.utils.RelationshipVersioningUtils;
@@ -63,6 +66,7 @@ public class VersioningConsumer implements Consumer {
     private RelationshipTypeService relationshipTypeService;
     private RelationshipService relationshipService;
     private RelationshipVersioningUtils relationshipVersioningUtils;
+    private DedupService dedupService;
     private OrcidQueueService orcidQueueService;
     private OrcidHistoryService orcidHistoryService;
 
@@ -74,6 +78,8 @@ public class VersioningConsumer implements Consumer {
         relationshipTypeService = ContentServiceFactory.getInstance().getRelationshipTypeService();
         relationshipService = ContentServiceFactory.getInstance().getRelationshipService();
         relationshipVersioningUtils = VersionServiceFactory.getInstance().getRelationshipVersioningUtils();
+        dedupService = new DSpace().getServiceManager().getServiceByName(DedupService.class.getName(),
+            DedupService.class);
         this.orcidQueueService = OrcidServiceFactory.getInstance().getOrcidQueueService();
         this.orcidHistoryService = OrcidServiceFactory.getInstance().getOrcidHistoryService();
     }
@@ -143,6 +149,8 @@ public class VersioningConsumer implements Consumer {
         unarchiveItem(ctx, previousItem);
         // handles versions for ORCID publications waiting to be shipped, or already published (history-queue).
         handleOrcidSynchronization(ctx, previousItem, latestItem);
+        // update duplicate detected
+        updateDuplicateDetection(ctx, latestItem, previousItem);
         // update relationships
         updateRelationships(ctx, latestItem, previousItem);
     }
@@ -163,7 +171,7 @@ public class VersioningConsumer implements Consumer {
             replaceOrcidHistoryEntities(ctx, previousItem, latestItem);
             removeOrcidQueueEntries(ctx, previousItem);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new SQLRuntimeException(e);
         }
     }
 
@@ -179,6 +187,12 @@ public class VersioningConsumer implements Consumer {
         for (OrcidHistory entry : entries) {
             entry.setEntity(latestItem);
         }
+    }
+
+    private void updateDuplicateDetection(Context ctx, Item latestItem, Item previousItem) throws Exception {
+        dedupService.inheritDecisions(ctx, previousItem, latestItem);
+        dedupService.removeMatch(previousItem);
+        dedupService.indexContent(ctx, latestItem, true);
     }
 
     /**

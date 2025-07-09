@@ -53,6 +53,8 @@ public class SubmissionStepConfig implements Serializable {
 
     private boolean mandatory = true;
 
+    private boolean opened = true;
+
     /**
      * the heading for this step
      */
@@ -108,6 +110,10 @@ public class SubmissionStepConfig implements Serializable {
         // only set if explicitly configured
         if (s != null) {
             mandatory = BooleanUtils.toBoolean(s);
+        }
+        String s2 = stepMap.get("opened");
+        if (s2 != null) {
+            opened = BooleanUtils.toBoolean(s2);
         }
         heading = stepMap.get("heading");
         processingClassName = stepMap.get("processing-class");
@@ -176,13 +182,7 @@ public class SubmissionStepConfig implements Serializable {
         return visibilityOutside;
     }
 
-    /**
-     * Check if given submission section object is hidden for the current submission scope
-     *
-     * @param obj the InProgressSubmission to check
-     * @return true if the submission section is hidden, false otherwise
-     */
-    public boolean isHiddenForInProgressSubmission(InProgressSubmission obj) {
+    public boolean isHiddenForInProgressSubmission(InProgressSubmission<?> obj) {
 
         String scopeToCheck = getScope(obj);
 
@@ -201,7 +201,20 @@ public class SubmissionStepConfig implements Serializable {
 
     }
 
-    private String getScope(InProgressSubmission obj) {
+    public boolean isReadOnlyForInProgressSubmission(InProgressSubmission<?> obj) {
+
+        String scopeToCheck = getScope(obj);
+
+        if (scope == null || scopeToCheck == null) {
+            return false;
+        }
+
+        String visibility = scope.equalsIgnoreCase(scopeToCheck) ? getVisibility() : getVisibilityOutside();
+        return "read-only".equalsIgnoreCase(visibility);
+
+    }
+
+    private String getScope(InProgressSubmission<?> obj) {
         if (HibernateProxyHelper.getClassWithoutInitializingProxy(obj).equals(WorkspaceItem.class)) {
             return "submission";
         }
@@ -242,5 +255,9 @@ public class SubmissionStepConfig implements Serializable {
 
     public boolean isMandatory() {
         return mandatory;
+    }
+
+    public boolean isOpened() {
+        return opened;
     }
 }

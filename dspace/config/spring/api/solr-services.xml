@@ -49,7 +49,12 @@
     
     <bean class="org.dspace.statistics.GeoIpService" autowire-candidate="true"/>
     
-    <!-- suggestion service for solr providers -->     
-    <bean id="org.dspace.app.suggestion.SolrSuggestionStorageService" class="org.dspace.app.suggestion.SolrSuggestionStorageServiceImpl" />
-   
+	<!-- deduplication -->
+	<bean class="org.dspace.app.deduplication.service.impl.SolrDedupServiceImpl" id="org.dspace.app.deduplication.service.DedupService"/>
+
+	<!-- audit -->
+	<bean id="org.dspace.app.audit.AuditService" class="org.dspace.app.audit.AuditService"/>
+
+    <!-- suggestion service for solr providers -->
+	<bean id="org.dspace.app.suggestion.SolrSuggestionStorageService" class="org.dspace.app.suggestion.SolrSuggestionStorageServiceImpl" />
 </beans>

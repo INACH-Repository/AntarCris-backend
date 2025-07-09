@@ -119,7 +119,6 @@ public class MetadataDeletionIT extends AbstractIntegrationTestWithDatabase {
 
     @Test
     public void metadataDeletionNotAllowedTest() throws Exception {
-
         MetadataField titleField = metadataFieldService.findByElement(context, "dc", "title", null);
         MetadataField authorField = metadataFieldService.findByElement(context, "dc", "contributor", "author");
 

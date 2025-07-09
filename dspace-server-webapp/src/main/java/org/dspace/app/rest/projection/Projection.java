@@ -146,4 +146,12 @@ public interface Projection {
      */
     PageRequest getPagingOptions(String rel, HALResource<? extends RestAddressableModel> resource,
                                  Link... oldLinks);
+
+    default boolean preventMetadataLevelSecurity() {
+        return false;
+    }
+
+    default boolean isAllLanguages() {
+        return false;
+    }
 }

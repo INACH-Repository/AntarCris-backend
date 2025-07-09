@@ -149,6 +149,11 @@ public class RelationshipBuilder extends AbstractBuilder<Relationship, Relations
         return this;
     }
 
+    public RelationshipBuilder withRightPlace(int rightPlace) {
+        relationship.setRightPlace(rightPlace);
+        return this;
+    }
+
     public RelationshipBuilder withLatestVersionStatus(Relationship.LatestVersionStatus latestVersionStatus) {
         relationship.setLatestVersionStatus(latestVersionStatus);
         return this;

@@ -598,13 +598,12 @@ public class ItemTest extends AbstractDSpaceObjectTest {
         //by default has no authority
 
         String schema = "dc";
-        String element = "contributor";
-        String qualifier = "author";
+        String element = "date";
+        String qualifier = "issued";
         String lang = null;
         List<String> values = Arrays.asList("value0", "value1");
-        List<String> authorities = Arrays.asList("auth0", "auth2");
         List<Integer> confidences = Arrays.asList(0, 0);
-        itemService.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
+        itemService.addMetadata(context, it, schema, element, qualifier, lang, values, null, confidences);
 
         List<MetadataValue> dc = itemService.getMetadata(it, schema, element, qualifier, Item.ANY);
         assertThat("testAddMetadata_7args_1 0", dc, notNullValue());
@@ -662,7 +661,7 @@ public class ItemTest extends AbstractDSpaceObjectTest {
         // Now, update tests values to append a third value which is NOT virtual metadata
         String newValue = "new-metadata-value";
         String newAuthority = "auth0";
-        Integer newConfidence = 0;
+        int newConfidence = 0;
         values.add(newValue);
         authorities.add(newAuthority);
         confidences.add(newConfidence);
@@ -681,8 +680,9 @@ public class ItemTest extends AbstractDSpaceObjectTest {
         assertEquals(element, dc.get(0).getMetadataField().getElement());
         assertEquals(qualifier, dc.get(0).getMetadataField().getQualifier());
         assertEquals(newValue, dc.get(0).getValue());
-        assertNull(dc.get(0).getAuthority());
-        assertEquals(-1, dc.get(0).getConfidence());
+        // Is authority controlled, thus the authority will be there!
+        assertEquals(newAuthority, dc.get(0).getAuthority());
+        assertEquals(newConfidence, dc.get(0).getConfidence());
     }
 
     /**
@@ -750,9 +750,8 @@ public class ItemTest extends AbstractDSpaceObjectTest {
         String qualifier = "editor";
         String lang = null;
         String values = "value0";
-        String authorities = "auth0";
         int confidences = 0;
-        itemService.addMetadata(context, it, schema, element, qualifier, lang, values, authorities, confidences);
+        itemService.addMetadata(context, it, schema, element, qualifier, lang, values, null, confidences);
 
         List<MetadataValue> dc = itemService.getMetadata(it, schema, element, qualifier, Item.ANY);
         assertThat("testAddMetadata_7args_2 0", dc, notNullValue());
@@ -764,7 +763,7 @@ public class ItemTest extends AbstractDSpaceObjectTest {
         assertThat("testAddMetadata_7args_2 5", dc.get(0).getLanguage(), equalTo(lang));
         assertThat("testAddMetadata_7args_2 6", dc.get(0).getValue(), equalTo(values));
         assertThat("testAddMetadata_7args_2 7", dc.get(0).getAuthority(), nullValue());
-        assertThat("testAddMetadata_7args_2 8", dc.get(0).getConfidence(), equalTo(-1));
+        assertThat("testAddMetadata_7args_2 8", dc.get(0).getConfidence(), equalTo(0));
     }
 
     @Test
@@ -1766,7 +1765,7 @@ public class ItemTest extends AbstractDSpaceObjectTest {
         String qualifier = "author";
         String value = "value";
 
-        Iterator<Item> result = itemService.findByMetadataField(context, schema, element, qualifier, value);
+        Iterator<Item> result = itemService.findArchivedByMetadataField(context, schema, element, qualifier, value);
         assertThat("testFindByMetadataField 0", result, notNullValue());
         assertFalse("testFindByMetadataField 1", result.hasNext());
 
@@ -1776,7 +1775,7 @@ public class ItemTest extends AbstractDSpaceObjectTest {
         itemService.update(context, it);
         context.restoreAuthSystemState();
 
-        result = itemService.findByMetadataField(context, schema, element, qualifier, value);
+        result = itemService.findArchivedByMetadataField(context, schema, element, qualifier, value);
         assertThat("testFindByMetadataField 3", result, notNullValue());
         assertTrue("testFindByMetadataField 4", result.hasNext());
         assertTrue("testFindByMetadataField 5", result.next().equals(it));

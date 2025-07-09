@@ -20,6 +20,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.service.EPersonService;
+import org.dspace.profile.service.ResearcherProfileService;
 import org.dspace.services.RequestService;
 import org.dspace.services.model.Request;
 import org.dspace.supervision.service.SupervisionOrderService;
@@ -58,7 +59,11 @@ public class WorkflowRestPermissionEvaluatorPlugin extends RestObjectPermissionE
     private EPersonService ePersonService;
 
     @Autowired
+    private ResearcherProfileService researcherProfileService;
+
+    @Autowired
     private SupervisionOrderService supervisionOrderService;
+
 
     @Override
     public boolean hasDSpacePermission(Authentication authentication, Serializable targetId,

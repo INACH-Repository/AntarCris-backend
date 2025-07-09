@@ -112,6 +112,11 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService {
     }
 
     @Override
+    public List<ResourcePolicy> find(Context c, DSpaceObject o, int actionId, String type) throws SQLException {
+        return resourcePolicyDAO.findByDSoAndActionAndType(c, o, actionId, type);
+    }
+
+    @Override
     public List<ResourcePolicy> find(Context c, DSpaceObject dso, Group group, int action) throws SQLException {
         return resourcePolicyDAO.findByTypeGroupAction(c, dso, group, action);
     }
@@ -423,5 +428,11 @@ public class ResourcePolicyServiceImpl implements ResourcePolicyService {
             isMy = true;
         }
         return isMy;
+    }
+
+    @Override
+    public List<ResourcePolicyOwnerVO> findValidPolicyOwners(Context c, List<UUID> dsoIds, int actionID)
+        throws SQLException {
+        return resourcePolicyDAO.findValidPolicyOwners(c, dsoIds, actionID);
     }
 }

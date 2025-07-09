@@ -27,6 +27,7 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.factory.ContentServiceFactory;
 import org.dspace.content.service.ItemService;
+import org.dspace.core.CrisConstants;
 import org.dspace.orcid.service.impl.PlainMetadataSignatureGeneratorImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,29 +71,29 @@ public class PlainMetadataSignatureGeneratorIT extends AbstractIntegrationTestWi
         Item item = ItemBuilder.createItem(context, collection)
             .withTitle("Item title")
             .withIssueDate("2020-01-01")
-            .withAuthor("Jesse Pinkman")
-            .withEditor("Editor")
+            .withAuthor("Jesse Pinkman", "d285b110-e8fd-4f71-80b5-2e9267c27dfb")
+            .withAuthorAffiliation(CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE)
             .build();
 
         context.restoreAuthSystemState();
 
         MetadataValue author = getMetadata(item, "dc.contributor.author", 0);
-        MetadataValue editor = getMetadata(item, "dc.contributor.editor", 0);
+        MetadataValue affiliation = getMetadata(item, "oairecerif.author.affiliation", 0);
 
-        String signature = generator.generate(context, List.of(author, editor));
+        String signature = generator.generate(context, List.of(author, affiliation));
         assertThat(signature, notNullValue());
 
-        String expectedSignature = "dc.contributor.author::Jesse Pinkman§§"
-            + "dc.contributor.editor::Editor";
+        String expectedSignature = "dc.contributor.author::Jesse Pinkman::d285b110-e8fd-4f71-80b5-2e9267c27dfb§§"
+            + "oairecerif.author.affiliation::" + CrisConstants.PLACEHOLDER_PARENT_METADATA_VALUE;
 
         assertThat(signature, equalTo(expectedSignature));
 
-        String anotherSignature = generator.generate(context, List.of(editor, author));
+        String anotherSignature = generator.generate(context, List.of(affiliation, author));
         assertThat(anotherSignature, equalTo(signature));
 
         List<MetadataValue> metadataValues = generator.findBySignature(context, item, signature);
         assertThat(metadataValues, hasSize(2));
-        assertThat(metadataValues, containsInAnyOrder(author, editor));
+        assertThat(metadataValues, containsInAnyOrder(author, affiliation));
 
     }
 
@@ -105,7 +106,7 @@ public class PlainMetadataSignatureGeneratorIT extends AbstractIntegrationTestWi
             .withTitle("Item title")
             .withDescription("Description")
             .withAuthor("Jesse Pinkman")
-            .withUriIdentifier("https://www.4science.it/en")
+            .withUrlIdentifier("https://www.4science.it/en")
             .build();
 
         context.restoreAuthSystemState();
@@ -119,9 +120,9 @@ public class PlainMetadataSignatureGeneratorIT extends AbstractIntegrationTestWi
         assertThat(metadataValues, hasSize(1));
         assertThat(metadataValues, containsInAnyOrder(description));
 
-        MetadataValue url = getMetadata(item, "dc.identifier.uri", 0);
+        MetadataValue url = getMetadata(item, "oairecerif.identifier.url", 0);
         signature = generator.generate(context, List.of(url));
-        assertThat(signature, equalTo("dc.identifier.uri::https://www.4science.it/en"));
+        assertThat(signature, equalTo("oairecerif.identifier.url::https://www.4science.it/en::https://www.4science.it/en"));
 
         metadataValues = generator.findBySignature(context, item, signature);
         assertThat(metadataValues, hasSize(1));
@@ -133,11 +134,15 @@ public class PlainMetadataSignatureGeneratorIT extends AbstractIntegrationTestWi
     public void testSignatureGenerationWithManyEqualsMetadataValues() {
         context.turnOffAuthorisationSystem();
 
+        Item person = ItemBuilder.createItem(context, collection)
+                .withTitle("Jesse Pinkman")
+                .build();
+
         Item item = ItemBuilder.createItem(context, collection)
             .withTitle("Item title")
             .withDescription("Description")
-            .withAuthor("Jesse Pinkman")
-            .withAuthor("Jesse Pinkman")
+            .withAuthor("Jesse Pinkman", person.getID().toString())
+            .withAuthor("Jesse Pinkman", person.getID().toString())
             .build();
 
         context.restoreAuthSystemState();
@@ -145,12 +150,12 @@ public class PlainMetadataSignatureGeneratorIT extends AbstractIntegrationTestWi
         MetadataValue firstAuthor = getMetadata(item, "dc.contributor.author", 0);
         String firstSignature = generator.generate(context, List.of(firstAuthor));
         assertThat(firstSignature, notNullValue());
-        assertThat(firstSignature, equalTo("dc.contributor.author::Jesse Pinkman"));
+        assertThat(firstSignature, equalTo("dc.contributor.author::Jesse Pinkman::" + person.getID().toString()));
 
         MetadataValue secondAuthor = getMetadata(item, "dc.contributor.author", 1);
         String secondSignature = generator.generate(context, List.of(secondAuthor));
         assertThat(secondSignature, notNullValue());
-        assertThat(secondSignature, equalTo("dc.contributor.author::Jesse Pinkman"));
+        assertThat(secondSignature, equalTo("dc.contributor.author::Jesse Pinkman::" + person.getID().toString()));
 
         List<MetadataValue> metadataValues = generator.findBySignature(context, item, firstSignature);
         assertThat(metadataValues, hasSize(1));

@@ -1,6 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.dspace</groupId>
     <artifactId>dspace-api</artifactId>
     <name>DSpace Kernel :: API and Implementation</name>
     <description>DSpace core data model and service APIs.</description>
@@ -12,7 +11,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-parent</artifactId>
-        <version>8.1</version>
+        <version>cris-2024.02.01</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -365,6 +364,12 @@
             <groupId>org.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <version>${ehcache.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.jaxb</groupId>
+                    <artifactId>jaxb-runtime</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-cache
              Caching dependencies for sherpa service. -->
@@ -415,22 +420,22 @@
             <artifactId>cnri-servlet-container</artifactId>
             <scope>runtime</scope>
             <exclusions>
-                <!-- Excluded because this library is incompatible with Jakarta EE. It causes errors in DSpace during
-                     startup & integration testing. Excluding doesn't seem to effect Handle Server startup. -->
-                <exclusion>
-                    <groupId>org.mortbay.jasper</groupId>
-                    <artifactId>apache-jsp</artifactId>
-                </exclusion>
-                <!-- Excluded BouncyCastle dependencies because we use a later version of BouncyCastle.
-                     Having two versions of BouncyCastle in the classpath can cause Handle Server to throw errors. -->
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk15on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
+              <!-- Excluded because this library is incompatible with Jakarta EE. It causes errors in DSpace during
+                   startup & integration testing. Excluding doesn't seem to effect Handle Server startup. -->
+              <exclusion>
+                <groupId>org.mortbay.jasper</groupId>
+                <artifactId>apache-jsp</artifactId>
+              </exclusion>
+              <!-- Excluded BouncyCastle dependencies because we use a later version of BouncyCastle.
+                   Having two versions of BouncyCastle in the classpath can cause Handle Server to throw errors. -->
+              <exclusion>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+              </exclusion>
             </exclusions>
         </dependency>
 
@@ -507,6 +512,12 @@
         <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>xom</artifactId>
+                    <groupId>xom</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
@@ -599,6 +610,10 @@
             <scope>test</scope>
             <version>${solr.client.version}</version>
             <exclusions>
+                <exclusion>
+                    <groupId>com.google.j2objc</groupId>
+                    <artifactId>j2objc-annotations</artifactId>
+                </exclusion>
                 <!-- Later version provided by Hibernate -->
                 <exclusion>
                     <groupId>org.antlr</groupId>
@@ -634,6 +649,12 @@
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parsers-standard-package</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.jaxb</groupId>
+                    <artifactId>jaxb-runtime</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -692,6 +713,24 @@
             <version>${flyway.version}</version>
         </dependency>
 
+        <!-- Google Analytics -->
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-analytics</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client-jackson2</artifactId>
+        </dependency>
+
         <!-- FindBugs -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
@@ -705,6 +744,7 @@
         <dependency>
             <groupId>jakarta.inject</groupId>
             <artifactId>jakarta.inject-api</artifactId>
+            <version>2.0.1</version>
         </dependency>
 
         <!-- JAXB API and implementation (no longer bundled as of Java 11) -->
@@ -755,6 +795,14 @@
                     <groupId>org.yaml</groupId>
                     <artifactId>snakeyaml</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jersey</groupId>
+                    <artifactId>jersey-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.ws.rs</groupId>
+                    <artifactId>jsr311-api</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -762,6 +810,13 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20231013</version>
+        </dependency>
+
+        <!-- To extract metadata from Json response, e.g. SimpleJsonPathMetadataContributor -->
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>${json-path.version}</version>
         </dependency>
 
         <!-- Useful for testing command-line tools -->
@@ -800,6 +855,67 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>fop</artifactId>
+            <version>2.9</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                      <artifactId>servlet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis-ext</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>fop-pdf-images</artifactId>
+            <version>2.9</version>
+        </dependency>
+
+
+        <dependency>
+	        <groupId>de.undercouch</groupId>
+	        <artifactId>citeproc-java</artifactId>
+	        <version>2.0.0</version>
+	        <exclusions>
+	            <exclusion>
+	               <groupId>org.apache.commons</groupId>
+	               <artifactId>commons-lang3</artifactId>
+	            </exclusion>
+	            <exclusion>
+	               <groupId>org.jbibtex</groupId>
+	               <artifactId>jbibtex</artifactId>
+	            </exclusion>
+	            <exclusion>
+	               <groupId>org.antlr</groupId>
+	               <artifactId>antlr4-runtime</artifactId>
+	            </exclusion>
+                <exclusion>
+                    <groupId>org.ow2.asm</groupId>
+                    <artifactId>asm-util</artifactId>
+                </exclusion>
+         	</exclusions>
+      </dependency>
+      <dependency>
+	      <groupId>org.citationstyles</groupId>
+	      <artifactId>locales</artifactId>
+	      <version>1.0</version>
+      </dependency>
+      <dependency>
+	      <groupId>org.citationstyles</groupId>
+	      <artifactId>styles</artifactId>
+	      <version>1.0</version>
+      </dependency>
+
         <!-- required for openaire api integration -->
         <dependency>
             <groupId>eu.openaire</groupId>
@@ -813,7 +929,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
+
         <dependency>
           <groupId>eu.openaire</groupId>
           <artifactId>broker-client</artifactId>
@@ -845,9 +961,23 @@
                     <groupId>javax.servlet</groupId>
                     <artifactId>javax.servlet-api</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.datatype</groupId>
+                    <artifactId>jackson-datatype-jsr310</artifactId>
+                </exclusion>
+                <!-- Resolve dependency conflicts with Hibernate -->
+                <exclusion>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                </exclusion>
+                <!-- Resolve dependency conflicts with Solr -->
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
-        
+
         <dependency>
             <groupId>io.findify</groupId>
             <artifactId>s3mock_2.13</artifactId>
@@ -865,4 +995,75 @@
             </exclusions>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+          <!-- for mockserver -->
+          <!-- Solve dependency convergence issues related to Solr and
+               'mockserver-junit-rule' by selecting the versions we want to use. -->
+          <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
+            <version>4.1.117.Final</version>
+          </dependency>
+          <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+            <version>4.1.117.Final</version>
+          </dependency>
+          <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-native-unix-common</artifactId>
+            <version>4.1.117.Final</version>
+           </dependency>
+          <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+            <version>4.1.117.Final</version>
+          </dependency>
+          <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+            <version>4.1.117.Final</version>
+          </dependency>
+          <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec</artifactId>
+            <version>4.1.117.Final</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-engine-core</artifactId>
+            <version>2.4.1</version>
+          </dependency>
+          <dependency>
+              <groupId>org.xmlunit</groupId>
+              <artifactId>xmlunit-core</artifactId>
+              <version>2.10.0</version>
+              <scope>test</scope>
+          </dependency>
+          <dependency>
+            <groupId>com.github.java-json-tools</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>2.2.14</version>
+          </dependency>
+          <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.0.2</version>
+          </dependency>
+          <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-core</artifactId>
+            <version>1.6.2</version>
+          </dependency>
+          <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>2.13.16</version>
+            <scope>test</scope>
+          </dependency>
+        </dependencies>
+    </dependencyManagement>
+
 </project>
