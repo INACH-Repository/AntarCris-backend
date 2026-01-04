@@ -73,6 +73,36 @@
           <hint>Enter the affiliation of the author as stated on the publication.</hint>
         </field>
       </row>
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>affiliation</dc-element>
+          <dc-qualifier>orcid</dc-qualifier>
+          <label>Authors ORCIDs</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>affiliation</dc-element>
+          <dc-qualifier>ror</dc-qualifier>
+          <label>Authors ROR</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>affiliation</dc-element>
+          <dc-qualifier>country</dc-qualifier>
+          <label>Affiliation's Country</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+        </field>
+      </row>
     </form>
     <form name="publication-dc-contributor-editor">
       <row>
@@ -528,7 +558,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint>Enter the main title of the item.</hint>
         </field>
       </row>
-      <row>
+      <!--<row>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>title</dc-element>
@@ -539,7 +569,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <required />
           <hint>If the item has any alternative titles, please enter them here.</hint>
         </field>
-      </row>
+      </row>-->
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -562,11 +592,9 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Authors</label>
           <input-type>group</input-type>
           <repeatable>true</repeatable>
-          <required />
-          <hint>Enter the names of the authors of this item.</hint>
         </field>
       </row>
-      <row>
+      <!--<row>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>contributor</dc-element>
@@ -577,7 +605,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <required />
           <hint>The editors of this publication.</hint>
         </field>
-      </row>
+      </row>-->
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -592,7 +620,7 @@ it, please enter the types and the actual numbers or codes.</hint>
       </row>
     </form>
     <form name="publication_indexing">
-      <row>
+      <!--<row>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>language</dc-element>
@@ -603,7 +631,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <required />
           <hint>Select the language of the main content of the item. If the language does not appear in the list, please select 'Other'.  If the content does not really have a language (for example, if it is a dataset or an image) please select 'N/A'.</hint>
         </field>
-      </row>
+      </row>-->
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -615,7 +643,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint>Type the appropriate keyword or phrase and press Enter to add it.</hint>
         </field>
       </row>
-      <row>
+      <!--<row>
         <field>
           <dc-schema>datacite</dc-schema>
           <dc-element>subject</dc-element>
@@ -627,7 +655,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint />
           <vocabulary closed="true">oecd</vocabulary>
         </field>
-      </row>
+      </row>-->
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -640,9 +668,39 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint>Enter the abstract of the item.</hint>
         </field>
       </row>
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>area</dc-element>
+          <dc-quality>anid</dc-quality>
+          <label>Linea ANID</label>
+          <input-type value-pairs-name="linea_anid">dropdown</input-type>
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>area</dc-element>
+          <dc-quality>inach</dc-quality>
+          <label>Linea INACH</label>
+          <input-type value-pairs-name="linea_inach">dropdown</input-type>
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>area</dc-element>
+          <dc-quality>ods</dc-quality>
+          <label>Linea ODS</label>
+          <input-type value-pairs-name="linea_ods">dropdown</input-type>
+          <hint />
+        </field>
+      </row>
     </form>
     <form name="publication_bibliographic_details">
-      <row>
+      <!--<row>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
@@ -680,6 +738,46 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint>The DOI of the book/report if it was not found in the system</hint>
           <type-bind>publication-coar-types:c_3248,publication-coar-types:c_5794,publication-coar-types:c_6670</type-bind>
         </field>
+      </row>-->
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>citation</dc-element>
+          <dc-qualifier>quartile</dc-qualifier>
+          <label>Journal Quartile</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>citation</dc-element>
+          <dc-qualifier>edition</dc-qualifier>
+          <label>Journal Edition</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>citation</dc-element>
+          <dc-qualifier>editorial</dc-qualifier>
+          <label>Journal Editorial</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>citation</dc-element>
+          <dc-qualifier>numreport</dc-qualifier>
+          <label>Report number</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+        </field>
       </row>
       <row>
         <field>
@@ -705,7 +803,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint>Enter the series and number assigned to this item by your community.</hint>
         </field>
       </row>
-      <row>
+      <!--<row>
         <field>
           <dc-schema>dc</dc-schema>
           <dc-element>relation</dc-element>
@@ -767,8 +865,8 @@ it, please enter the types and the actual numbers or codes.</hint>
           <required />
           <hint>If applicable, the volume of the publishing channel where this publication appeared</hint>
         </field>
-      </row>
-      <row>
+      </row>-->
+      <!--<row>
         <field>
           <dc-schema>oaire</dc-schema>
           <dc-element>citation</dc-element>
@@ -779,7 +877,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <required />
           <hint>If applicable, the issue of the publishing channel where this publication appeared</hint>
         </field>
-      </row>
+      </row>-->
       <row>
         <field>
           <dc-schema>oaire</dc-schema>
