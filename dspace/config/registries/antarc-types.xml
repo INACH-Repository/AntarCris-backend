@@ -6,6 +6,7 @@
 
     <dc-schema>
         <name>antarc</name>
+        <namespace>https://inach.cl</namespace>
     </dc-schema>
 
 
@@ -86,7 +87,6 @@
         <qualifier>numreport</qualifier>
         <scope_note></scope_note>
     </dc-type>
-
 
     <dc-type>
         <schema>antarc</schema>

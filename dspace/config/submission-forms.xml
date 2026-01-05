@@ -1979,8 +1979,6 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-element>state</dc-element>
           <label>Es activa la organizacion?</label>
           <input-type value-pairs-name="truefalse">dropdown</input-type>
-          <repeatable>false</repeatable>
-          <hint />
         </field>
       </row>
     </form>
