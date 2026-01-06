@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.solr.common.SolrDocument;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.dspace.discovery.configuration.DiscoveryConfiguration;
@@ -146,4 +147,16 @@ public interface SearchService {
         throws SearchServiceException;
 
     public SolrSearchCore getSolrSearchCore();
+
+    /**
+     * Convenient method to call @see #search(Context, DSpaceObject,
+     * DiscoverQuery, boolean) with includeWithdrawn=false
+     *
+     * @param context DSpace Context object
+     * @param query   the discovery query object
+     * @return discovery search result object
+     * @throws SearchServiceException if search error
+     */
+    List<SolrDocument> rawSearch(Context context, DiscoverQuery query, List<String> fieldList)
+            throws SearchServiceException;
 }
