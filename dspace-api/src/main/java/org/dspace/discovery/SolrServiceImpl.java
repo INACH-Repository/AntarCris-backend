@@ -54,10 +54,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.params.FacetParams;
-import org.apache.solr.common.params.HighlightParams;
-import org.apache.solr.common.params.MoreLikeThisParams;
-import org.apache.solr.common.params.SpellingParams;
+import org.apache.solr.common.params.*;
 import org.apache.solr.common.util.NamedList;
 import org.dspace.app.metrics.CrisMetrics;
 import org.dspace.authorize.ResourcePolicy;
@@ -1006,6 +1003,64 @@ public class SolrServiceImpl implements SearchService, IndexingService {
         }
 
         return solrQuery;
+    }
+
+    @Override
+    public List<SolrDocument> rawSearch(Context context, DiscoverQuery discoveryQuery, List<String> fieldList)
+            throws SearchServiceException {
+        try {
+            return rawSolrQuery(context, discoveryQuery, fieldList);
+        } catch (Exception e) {
+            throw new org.dspace.discovery.SearchServiceException(e.getMessage(), e);
+        }
+    }
+
+
+    protected List<SolrDocument> rawSolrQuery(Context context, DiscoverQuery discoveryQuery, List<String> fields)
+            throws SolrServerException, IOException {
+
+        // Setup solr query
+        SolrQuery solrQuery = new SolrQuery();
+
+        String query = "*:*";
+        if (discoveryQuery.getQuery() != null) {
+            query = discoveryQuery.getQuery();
+        }
+        solrQuery.setQuery(query);
+
+        for(String field : fields) {
+            solrQuery.addField(field);
+        }
+
+        // page result by 250
+        solrQuery.setRows(250);
+
+        // Add configuration filter queries
+        for (int i = 0; i < discoveryQuery.getFilterQueries().size(); i++) {
+            String filterQuery = discoveryQuery.getFilterQueries().get(i);
+            solrQuery.addFilterQuery(filterQuery);
+        }
+
+
+        solrQuery.addSort("search.uniqueid", SolrQuery.ORDER.asc);
+        String cursorMark = CursorMarkParams.CURSOR_MARK_START;
+        boolean done = false;
+
+        // Make search
+        List<SolrDocument> results = new ArrayList<>();
+
+        while (!done) {
+            solrQuery.set(CursorMarkParams.CURSOR_MARK_PARAM, cursorMark);
+            QueryResponse solrQueryResponse = solrSearchCore.getSolr().query(solrQuery);
+            String nextCursorMark = solrQueryResponse.getNextCursorMark();
+            results.addAll(solrQueryResponse.getResults());
+            if (cursorMark.equals(nextCursorMark)) {
+                done = true;
+            }
+            cursorMark = nextCursorMark;
+        }
+
+        return results;
     }
 
     protected DiscoverResult retrieveResult(Context context, DiscoverQuery query)
