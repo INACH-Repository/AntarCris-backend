@@ -2366,6 +2366,17 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>true</repeatable>
         </field>
       </row>
+      <row>
+        <field>
+          <dc-schema>dc</dc-schema>
+          <dc-element>type</dc-element>
+          <label>Type</label>
+          <input-type value-pairs-name="thesis_types">dropdown</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint />
+        </field>
+      </row>
     </form>
     <form name="thesis_indexing">
       <row>
@@ -2424,6 +2435,20 @@ it, please enter the types and the actual numbers or codes.</hint>
     </form>
   </form-definitions>
   <form-value-pairs>
+    <value-pairs value-pairs-name="thesis_types" dc-term="thesis_types">
+      <pair>
+        <displayed-value>Pregrado</displayed-value>
+        <stored-value>Pregrado</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Magíster</displayed-value>
+        <stored-value>Magíster</stored-value>
+      </pair>
+      <pair>
+        <displayed-value>Doctorado</displayed-value>
+        <stored-value>Doctorado</stored-value>
+      </pair>
+    </value-pairs>
     <value-pairs value-pairs-name="linea_inach" dc-term="linea_inach">
       <pair>
         <displayed-value>Estado del ecosistema antártico</displayed-value>
