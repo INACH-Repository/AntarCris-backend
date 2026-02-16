@@ -4,45 +4,36 @@ on:
   push:
    branch: ["main"]
 
-#Lista de pasos
-#1. Limpiar archivos viejos
-#2. Compilar paquete de maven (OK)
-#3. Instalar nueva version usando ant (OK)
-#4. Mover archivos a Solr
-#5. Reiniciar servicios
-jobs:
-  clean-old-files:
-   runs-on: ubuntu-latest
-   steps:
-     - name: Checkout repository
-       uses: actions/checkout@v4
+permissions:
+  contents: read
 
-     - name: Deploy new version
-       uses: INACH-Repository/ssh-action@master
-       with:
-          host: ${{ secrets.HOST }}
-          username: dspace
-          password: ${{ secrets.PASSWORD_DSPACE }}
-          script: |
-            cd /home/dspace/
-            cd AntarCris-backend/
-            git pull origin main
+jobs:
+  update-code:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Deploy new version
+        run: |
+          cd /home/dspace/AntarCris-backend
+          git pull origin main
+          rm -r /home/dspace/AntarCris-backend/dspace/target || true
 
 
   compile-mvn-package:
-    needs: clean-old-files
-    runs-on: ubuntu-latest
+    needs: update-code
+    runs-on: self-hosted
     steps:
-     - name: Checkout repository
-       uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
-     - name: Compile package
-       uses: INACH-Repository/ssh-action@master
-       with:
-          host: ${{ secrets.HOST }}
-          username: dspace
-          password: ${{ secrets.PASSWORD_DSPACE }}
-          script: |
+      - name: Compile package
+        run: |
             export JAVA_HOME="/home/dspace/.sdkman/candidates/java/current"
             export PATH=$JAVA_HOME/bin:$PATH
             cd /home/dspace/AntarCris-backend/
@@ -51,57 +42,48 @@ jobs:
 
   install-ant-package:
     needs: compile-mvn-package
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
      - name: Checkout repository
        uses: actions/checkout@v4
+       with:
+        persist-credentials: false
 
      - name: Install new version using Ant
-       uses: INACH-Repository/ssh-action@master
-       with:
-          host: ${{ secrets.HOST }}
-          username: dspace
-          password: ${{ secrets.PASSWORD_DSPACE }}
-          script: |
-            export JAVA_HOME="/home/dspace/.sdkman/candidates/java/current"
-            export PATH=$JAVA_HOME/bin:$PATH
-            cd /home/dspace/AntarCris-backend/dspace/target/dspace-installer
-            /home/dspace/.sdkman/candidates/ant/current/bin/ant fresh_install
+       run: |
+          export JAVA_HOME="/home/dspace/.sdkman/candidates/java/current"
+          export PATH=$JAVA_HOME/bin:$PATH
+          cd /home/dspace/AntarCris-backend/dspace/target/dspace-installer
+          /home/dspace/.sdkman/candidates/ant/current/bin/ant fresh_install
 
 
   move-solr-files:
     needs: install-ant-package
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
      - name: Checkout repository
        uses: actions/checkout@v4
+       with:
+        persist-credentials: false
 
      - name: Move files
-       uses: INACH-Repository/ssh-action@master
-       with:
-          host: ${{ secrets.HOST }}
-          username: dspace
-          password: ${{ secrets.PASSWORD_DSPACE }}
-          script: |
+       run: |
             cd /home/dspace/
             cp -rf dspace/solr/* /var/solr/data/
 
 
   restart-services:
     needs: move-solr-files
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
      - name: Checkout repository
        uses: actions/checkout@v4
+       with:
+        persist-credentials: false
 
      - name: Restart services
-       uses: INACH-Repository/ssh-action@master
-       with:
-          host: ${{ secrets.HOST }}
-          username: root
-          password: ${{ secrets.PASSWORD_ROOT }}
-          script: |
-            systemctl restart solr
-            systemctl restart dspace.service
+       run: |
+          sudo systemctl restart solr
+          sudo systemctl restart dspace.service
 
 
