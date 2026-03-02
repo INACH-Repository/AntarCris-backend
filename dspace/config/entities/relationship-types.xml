@@ -18,6 +18,34 @@
         </rightCardinality>
         <copyToLeft>true</copyToLeft>
     </type>
+    <!-- nueva relacion -->
+    <type>
+        <leftType>Thesis</leftType>
+        <rightType>Person</rightType>
+        <leftwardType>isAuthorOfPublication</leftwardType>
+        <rightwardType>isPublicationOfAuthor</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+        <copyToLeft>true</copyToLeft>
+    </type>
+    <type>
+        <leftType>Thesis</leftType>
+        <rightType>OrgUnit</rightType>
+        <leftwardType>isOrgUnitOfPublication</leftwardType>
+        <rightwardType>isPublicationOfOrgUnit</rightwardType>
+        <leftCardinality>
+            <min>0</min>
+        </leftCardinality>
+        <rightCardinality>
+            <min>0</min>
+        </rightCardinality>
+        <copyToLeft>true</copyToLeft>
+    </type>
+    <!-- ******** -->
     <type>
         <leftType>Publication</leftType>
         <rightType>Project</rightType>

@@ -138,7 +138,7 @@
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
     </step-definition>
-    <step-definition id="publication_indexing" mandatory="false">
+    <step-definition id="publication_indexing" mandatory="true">
       <heading>submit.progressbar.describe.publication_indexing</heading>
       <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
       <type>submission-form</type>
@@ -229,6 +229,17 @@
         <heading>submit.progressbar.coarnotify</heading>
         <processing-class>org.dspace.app.rest.submit.step.NotifyStep</processing-class>
         <type>coarnotify</type>
+    </step-definition>
+    <!-- nuevas deficiones -->
+    <step-definition id="thesis" mandatory="true">
+      <heading>submit.progressbar.describe.thesis</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
+    </step-definition>
+    <step-definition id="thesis_indexing" mandatory="true">
+      <heading>submit.progressbar.describe.thesis_indexing</heading>
+      <processing-class>org.dspace.app.rest.submit.step.DescribeStep</processing-class>
+      <type>submission-form</type>
     </step-definition>
   </step-definitions>
   <submission-definitions>
@@ -357,6 +368,10 @@
     </submission-process>
     <submission-process name="funding-edit">
       <step id="funding" />
+    </submission-process>
+    <submission-process name="thesis">
+      <step id="thesis" />
+      <step id="thesis_indexing" />
     </submission-process>
   </submission-definitions>
 </item-submission>
