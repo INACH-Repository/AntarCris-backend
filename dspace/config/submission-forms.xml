@@ -614,18 +614,6 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint>Enter the main title of the item.</hint>
         </field>
       </row>
-      <!--<row>
-        <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>title</dc-element>
-          <dc-qualifier>alternative</dc-qualifier>
-          <label>Other Titles</label>
-          <input-type>onebox</input-type>
-          <repeatable>true</repeatable>
-          <required />
-          <hint>If the item has any alternative titles, please enter them here.</hint>
-        </field>
-      </row>-->
       <row>
         <field>
           <dc-schema>dc</dc-schema>
@@ -805,6 +793,18 @@ it, please enter the types and the actual numbers or codes.</hint>
           <repeatable>false</repeatable>
           <required />
           <hint>If applicable, the page where this publication ends</hint>
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>oaire</dc-schema>
+          <dc-element>citation</dc-element>
+          <dc-qualifier>volume</dc-qualifier>
+          <label>Volume</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
+          <hint>If applicable, the volume of the publishing channel where this publication appeared</hint>
         </field>
       </row>
     </form>
@@ -1384,6 +1384,30 @@ it, please enter the types and the actual numbers or codes.</hint>
         </field>
       </row>
     </form>
+    <form name="person-person-jobTitle">
+      <row>
+        <field>
+          <dc-schema>person</dc-schema>
+          <dc-element>jobTitle</dc-element>
+          <label>Cargo</label>
+          <input-type>onebox</input-type>
+        </field>
+        <field>
+          <dc-schema>person</dc-schema>
+          <dc-element>affiliation</dc-element>
+          <dc-qualifier>name</dc-qualifier>
+          <label>Nombre de la institucion</label>
+          <input-type>onebox</input-type>
+        </field>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>mainaffiliation</dc-element>
+          <dc-qualifier>ror</dc-qualifier>
+          <label>ROR id institucion</label>
+          <input-type>onebox</input-type>
+        </field>
+      </row>
+    </form>
     <form name="person">
       <row>
         <field>
@@ -1423,29 +1447,11 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>person</dc-schema>
           <dc-element>jobTitle</dc-element>
-          <label>Job Title</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
+          <label>Afiliaciones actuales</label>
+          <input-type>inline-group</input-type>
+          <repeatable>true</repeatable>
           <required />
           <hint />
-        </field>
-        <field>
-          <dc-schema>person</dc-schema>
-          <dc-element>affiliation</dc-element>
-          <dc-qualifier>name</dc-qualifier>
-          <label>Main Affiliation</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint />
-        </field>
-        <field>
-          <dc-schema>antarc</dc-schema>
-          <dc-element>mainaffiliation</dc-element>
-          <dc-qualifier>ror</dc-qualifier>
-          <label>ROR's Main Affiliation</label>
-          <input-type>onebox</input-type>
-          <repeatable>false</repeatable>
         </field>
       </row>
       <row>
@@ -1666,9 +1672,50 @@ it, please enter the types and the actual numbers or codes.</hint>
         <field>
           <dc-schema>antarc</dc-schema>
           <dc-element>state</dc-element>
-          <dc-qualifier>state</dc-qualifier>
           <label>Es activa la organizacion?</label>
           <input-type value-pairs-name="truefalse">dropdown</input-type>
+        </field>
+      </row>
+    </form>
+    <form name="project-crispj-coinvestigators">
+      <row>
+        <field>
+          <dc-schema>crispj</dc-schema>
+          <dc-element>coinvestigators</dc-element>
+          <label>Investigadores</label>
+          <input-type>onebox</input-type>
+        </field>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>affiliation</dc-element>
+          <dc-qualifier>orcid</dc-qualifier>
+          <label>ORCID Investigadores</label>
+          <input-type>onebox</input-type>
+        </field>
+      </row>
+    </form>
+    <form name="project-crispj-organization">
+      <row>
+        <field>
+          <dc-schema>crispj</dc-schema>
+          <dc-element>organization</dc-element>
+          <label>Instituciones</label>
+          <input-type>onebox</input-type>
+        </field>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>affiliation</dc-element>
+          <dc-qualifier>ror</dc-qualifier>
+          <label>ROR Instituciones</label>
+          <input-type>onebox</input-type>
+        </field>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>affiliation</dc-element>
+          <dc-qualifier>country</dc-qualifier>
+          <label>Pais de la institucion</label>
+          <input-type value-pairs-name="common_iso_countries">dropdown</input-type>
+          <hint />
         </field>
       </row>
     </form>
@@ -1776,7 +1823,17 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint />
         </field>
       </row>
+      <!--<form name="project-antarc-investigator">-->
       <row>
+        <field>
+          <dc-schema>crispj</dc-schema>
+          <dc-element>coinvestigators</dc-element>
+          <label>Investigadores</label>
+          <input-type>inline-group</input-type>
+          <repeatable>true</repeatable>
+        </field>
+      </row>
+      <!--<row>
         <field>
           <dc-schema>crispj</dc-schema>
           <dc-element>coinvestigators</dc-element>
@@ -1796,7 +1853,17 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint />
         </field>
       </row>
+      -->
       <row>
+        <field>
+          <dc-schema>crispj</dc-schema>
+          <dc-element>organization</dc-element>
+          <label>Instituciones</label>
+          <input-type>inline-group</input-type>
+          <repeatable>true</repeatable>
+        </field>
+      </row>
+      <!--<row>
         <field>
           <dc-schema>crispj</dc-schema>
           <dc-element>organization</dc-element>
@@ -1825,7 +1892,7 @@ it, please enter the types and the actual numbers or codes.</hint>
           <required />
           <hint />
         </field>
-      </row>
+      </row>-->
       <row>
         <field>
           <dc-schema>antarc</dc-schema>
@@ -1952,17 +2019,6 @@ it, please enter the types and the actual numbers or codes.</hint>
           <hint />
         </field>
       </row>
-      <!--<row>
-        <field>
-          <dc-schema>dc</dc-schema>
-          <dc-element>description</dc-element>
-          <label>Funding Description</label>
-          <input-type>textarea</input-type>
-          <repeatable>false</repeatable>
-          <required />
-          <hint />
-        </field>
-      </row>-->
       <row>
         <field>
           <dc-schema>crisfund</dc-schema>
