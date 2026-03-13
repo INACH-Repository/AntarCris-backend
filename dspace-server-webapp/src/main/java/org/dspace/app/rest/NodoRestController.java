@@ -58,18 +58,18 @@ public class NodoRestController {
     public Dictionary<String, Integer> getCollaborations(
             @RequestParam(name = "dsoType", required = false)
             List<String> dsoTypes,
-            @RequestParam(name = "scope", required = false) String dsoScope
+            @RequestParam(name = "scope", required = false) String dsoScope,
+            @RequestParam(name = "configuration", required = false, defaultValue = "RELATION.OrgUnit.rppublications") String configuration,
+            @RequestParam(name = "entitytype", required = false, defaultValue = "OrgUnit") String entityType
     ) throws Exception {
 
         // Search
         Pageable page = createPageRequestUsing(0, 10000);
         String query = "";
-        String configuration = "RELATION.OrgUnit.rppublications";
         List<SearchFilter> searchFilters = new ArrayList<SearchFilter>();
         SearchResultsRest searchResultsRest = discoveryRestRepository.getSearchObjects(query, dsoTypes, dsoScope,
                 configuration, searchFilters, page, utils.obtainProjection());
         List<SearchResultEntryRest> values = searchResultsRest.getSearchResults();
-        SearchResultsResource searchResultsResource = new SearchResultsResource(searchResultsRest, utils, page);
 
         // Init countries
         Dictionary<String, Integer> countryStr = new Hashtable<>();
@@ -79,21 +79,41 @@ public class NodoRestController {
             RestAddressableModel indexableObject = entry.getIndexableObject();
             MetadataRest<MetadataValueRest> metadataMap = ((ItemRest) indexableObject).getMetadata();
             SortedMap<String, List<MetadataValueRest>> metadata = metadataMap.getMap();
+            List<MetadataValueRest> metadataAuthors = metadata.get("dc.contributor.author");
             List<MetadataValueRest> metadataAffiliation = metadata.get("oairecerif.author.affiliation");
             List<MetadataValueRest> metadataCountries = metadata.get("antarc.affiliation.country");
 
-            if (metadataAffiliation != null && metadataCountries != null) {
-                for (int i = 0; i < metadataAffiliation.size(); i++) {
-                    String affiliation = metadataAffiliation.get(i).getValue();
-                    String authority = metadataAffiliation.get(i).getAuthority();
-                    if (!affiliation.equals(PLACEHOLDER_PARENT_METADATA_VALUE) && (authority == null || !authority.equals(dsoScope))) {
-                        String country = metadataCountries.get(i).getValue();
-                        if (!country.equals(PLACEHOLDER_PARENT_METADATA_VALUE) && countryStr.get(country) == null) {
-                            countryStr.put(country, 1);
-                        } else if (!country.equals(PLACEHOLDER_PARENT_METADATA_VALUE)) {
-                            countryStr.put(country, countryStr.get(country) + 1);
-                        }
+            if (entityType.equals("OrgUnit")) {
+                if (metadataAffiliation != null && metadataCountries != null) {
+                    for (int i = 0; i < metadataAffiliation.size(); i++) {
+                        String affiliation = metadataAffiliation.get(i).getValue();
+                        String authority = metadataAffiliation.get(i).getAuthority();
+                        if (!affiliation.equals(PLACEHOLDER_PARENT_METADATA_VALUE) && (authority == null || !authority.equals(dsoScope))) {
+                            String country = metadataCountries.get(i).getValue();
+                            if (!country.equals(PLACEHOLDER_PARENT_METADATA_VALUE) && countryStr.get(country) == null) {
+                                countryStr.put(country, 1);
+                            } else if (!country.equals(PLACEHOLDER_PARENT_METADATA_VALUE)) {
+                                countryStr.put(country, countryStr.get(country) + 1);
+                            }
 
+                        }
+                    }
+                }
+            }
+
+            if (entityType.equals("Person")) {
+                if (metadataAuthors != null) {
+                    for (int i = 0; i < metadataAuthors.size(); i++) {
+                        String authorAuthority = metadataAuthors.get(i).getAuthority();
+
+                        if (authorAuthority == null || !authorAuthority.equals(dsoScope)) {
+                            String country = metadataCountries.get(i).getValue();
+                            if (!country.equals(PLACEHOLDER_PARENT_METADATA_VALUE) && countryStr.get(country) == null) {
+                                countryStr.put(country, 1);
+                            } else if (!country.equals(PLACEHOLDER_PARENT_METADATA_VALUE)) {
+                                countryStr.put(country, countryStr.get(country) + 1);
+                            }
+                        }
                     }
                 }
             }
