@@ -1516,6 +1516,24 @@
 
     <!-- people affiliated to an orgunit -->
     <bean id="relationOrgunitPersonsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="id" value="orgunit_persons" />
+        <property name="indexAlways" value="true" />
+
+        <property name="sidebarFacets">
+            <list>
+                <ref bean="searchFilterFullName" />
+                <ref bean="searchFilterResearchTopic" />
+                <ref bean="searchFilterPersonOrgUnit"/>
+            </list>
+        </property>
+        <property name="searchFilters">
+            <list>
+                <ref bean="searchFilterFullName" />
+                <ref bean="searchFilterResearchTopic" />
+                <ref bean="searchFilterPersonOrgUnit"/>
+                <ref bean="searchFilterEntityType"/>
+            </list>
+        </property>
         <!--The sort filters for the discovery search-->
         <property name="searchSortConfiguration">
             <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
@@ -1823,21 +1841,17 @@
         <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
             <list>
-                <ref bean="searchFilterJobtitle"/>
-                <ref bean="searchFilterKnowsLanguage"/>
+                <ref bean="searchFilterFullName" />
+                <ref bean="searchFilterResearchTopic" />
                 <ref bean="searchFilterPersonOrgUnit"/>
-                <ref bean="searchFilterBirthdate"/>
             </list>
         </property>
         <!--The search filters which can be used on the discovery search page-->
         <property name="searchFilters">
             <list>
-                <ref bean="searchFilterFamilyName"/>
-                <ref bean="searchFilterGivenName"/>
-                <ref bean="searchFilterJobtitle"/>
-                <ref bean="searchFilterKnowsLanguage"/>
+                <ref bean="searchFilterFullName" />
+                <ref bean="searchFilterResearchTopic" />
                 <ref bean="searchFilterPersonOrgUnit"/>
-                <ref bean="searchFilterBirthdate"/>
                 <ref bean="searchFilterEntityType"/>
             </list>
         </property>
@@ -3104,6 +3118,20 @@
 
     </bean>
 
+    <bean id="searchFilterResearchTopic" class="org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration">
+        <property name="indexFieldName" value="research_topic"/>
+        <property name="metadataFields">
+            <list>
+                <value>dc.subject.*</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="splitter" value="::"/>
+
+    </bean>
+
     <!-- Sustainable Development Goals -->
     <bean id="searchFilterSDG" class="org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration">
         <property name="indexFieldName" value="ods"/>
@@ -3440,6 +3468,17 @@
         <property name="metadataFields">
             <list>
                 <value>person.givenName</value>
+            </list>
+        </property>
+        <property name="isOpenByDefault" value="false"/>
+        <property name="pageSize" value="10"/>
+    </bean>
+
+    <bean id="searchFilterFullName" class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="fullName"/>
+        <property name="metadataFields">
+            <list>
+                <value>dc.title</value>
             </list>
         </property>
         <property name="isOpenByDefault" value="false"/>
