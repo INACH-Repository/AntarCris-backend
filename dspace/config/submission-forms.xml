@@ -122,7 +122,6 @@
           <dc-qualifier>affiliation</dc-qualifier>
           <label>Affiliation</label>
           <input-type>onebox</input-type>
-          <repeatable>true</repeatable>
           <required />
           <hint>Enter the affiliation of the author as stated on the publication.</hint>
         </field>
@@ -134,7 +133,6 @@
           <dc-qualifier>ror</dc-qualifier>
           <label>Authors ROR</label>
           <input-type>onebox</input-type>
-          <repeatable>true</repeatable>
         </field>
       </row>
       <row>
@@ -144,7 +142,6 @@
           <dc-qualifier>country</dc-qualifier>
           <label>Affiliation's Country</label>
           <input-type>onebox</input-type>
-          <repeatable>true</repeatable>
         </field>
       </row>
     </form>
@@ -1639,9 +1636,15 @@ it, please enter the types and the actual numbers or codes.</hint>
           <dc-qualifier>url</dc-qualifier>
           <label>Website(s)</label>
           <input-type>link</input-type>
-          <repeatable>true</repeatable>
-          <required />
-          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>institution</dc-element>
+          <dc-qualifier>urlcris</dc-qualifier>
+          <label>Repositorio CRIS</label>
+          <input-type>onebox</input-type>
         </field>
       </row>
       <row>
@@ -1787,6 +1790,35 @@ it, please enter the types and the actual numbers or codes.</hint>
           <label>Funder</label>
           <input-type>onebox</input-type>
           <repeatable>false</repeatable>
+          <hint />
+        </field>
+      </row>
+      <row>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>project</dc-element>
+          <dc-qualifier>anid</dc-qualifier>
+          <label>Codigo ANID</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <hint />
+        </field>
+        <field>
+          <dc-schema>antarc</dc-schema>
+          <dc-element>project</dc-element>
+          <dc-qualifier>subtype</dc-qualifier>
+          <label>Subtipo de proyecto</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <hint />
+          </field>
+        <field>
+          <dc-schema>oairecerif</dc-schema>
+          <dc-element>amount</dc-element>
+          <label>Amount</label>
+          <input-type>onebox</input-type>
+          <repeatable>false</repeatable>
+          <required />
           <hint />
         </field>
       </row>

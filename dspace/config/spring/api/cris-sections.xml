@@ -10,6 +10,7 @@
                 <ref bean="sectionfundings_and_projects" />
                 <ref bean="sectionresearcherprofiles" />
                 <ref bean="sectionorganizations" />
+                <ref bean="sectionthesis" />
                 <ref bean="sectionsite" />
             </list>
         </property>
@@ -135,6 +136,20 @@
             </list>
         </constructor-arg>
     </bean>
+    <bean class="org.dspace.layout.CrisLayoutSection" id="sectionthesis">
+        <constructor-arg name="id" value="thesis"/>
+        <constructor-arg name="visible" value="true"/>
+        <constructor-arg name="sectionComponents">
+            <list>
+                <list>
+                    <bean class="org.dspace.layout.CrisLayoutSearchComponent">
+                        <property name="discoveryConfigurationName" value="thesis" />
+                        <property name="style" value="col-md-12"/>
+                    </bean>
+                </list>
+            </list>
+        </constructor-arg>
+    </bean>
     <bean class="org.dspace.layout.CrisLayoutSection" id="sectionsite">
         <constructor-arg name="id" value="site"/>
         <constructor-arg name="visible" value="false"/>
@@ -176,6 +191,12 @@
                                 <property name="label" value="orgunit"/>
                                 <property name="icon" value="fas fa-building-columns fa-3x"/>
                                 <property name="link" value="/explore/orgunits"/>
+                            </bean>
+                            <bean class="org.dspace.layout.CrisLayoutCountersComponent.CounterSettings">
+                                <property name="discoveryConfigurationName" value="thesis"/>
+                                <property name="label" value="thesis"/>
+                                <property name="icon" value="fas fa-file-alt fa-3x"/>
+                                <property name="link" value="/explore/thesis"/>
                             </bean>
                         </list>
                     </property>
