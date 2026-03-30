@@ -1586,6 +1586,24 @@
 
     <!-- suborganisation unit of an orgunit -->
     <bean id="relationOrgunitOrgunitsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <property name="id" value="orgunit_orgunits" />
+        <property name="indexAlways" value="true" />
+
+        <property name="sidebarFacets">
+            <list>
+                <ref bean="searchFilterOrganizationName" />
+                <ref bean="searchFilterOrganizationAddressCountry"/>
+                <ref bean="searchFilterOrganizationAddressLocality"/>
+            </list>
+        </property>
+        <property name="searchFilters">
+            <list>
+                <ref bean="searchFilterOrganizationName" />
+                <ref bean="searchFilterOrganizationAddressCountry"/>
+                <ref bean="searchFilterOrganizationAddressLocality"/>
+                <ref bean="searchFilterEntityType"/>
+            </list>
+        </property>
         <!--The sort filters for the discovery search-->
         <property name="searchSortConfiguration">
             <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
@@ -2069,18 +2087,17 @@
         <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
             <list>
+                <ref bean="searchFilterOrganizationName" />
                 <ref bean="searchFilterOrganizationAddressCountry"/>
                 <ref bean="searchFilterOrganizationAddressLocality"/>
-                <ref bean="searchFilterOrganizationFoundingDate"/>
             </list>
         </property>
         <!--The search filters which can be used on the discovery search page-->
         <property name="searchFilters">
             <list>
-                <ref bean="searchFilterOrganizationLegalName"/>
+                <ref bean="searchFilterOrganizationName" />
                 <ref bean="searchFilterOrganizationAddressCountry"/>
                 <ref bean="searchFilterOrganizationAddressLocality"/>
-                <ref bean="searchFilterOrganizationFoundingDate"/>
                 <ref bean="searchFilterEntityType"/>
             </list>
         </property>
@@ -3519,6 +3536,21 @@
         <property name="pageSize" value="10"/>
     </bean>
 
+    <bean id="searchFilterOrganizationName"
+          class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="organizationName"/>
+        <property name="metadataFields">
+            <list>
+                <value>dc.title</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="true"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="true"/>
+    </bean>
 
     <bean id="searchFilterOrganizationAddressCountry"
           class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
