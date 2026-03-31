@@ -58,6 +58,19 @@
                         </bean>
                     </list>
                 </entry>
+                <entry key="thesis">
+                    <list>
+                        <bean class="org.dspace.content.edit.EditItemMode">
+                            <property name="name" value="FULL" />
+                            <property name="security">
+                                <value type="org.dspace.content.security.CrisSecurity">
+                                    ITEM_ADMIN
+                                </value>
+                            </property>
+                            <property name="submissionDefinition" value="thesis-edit" />
+                        </bean>
+                    </list>
+                </entry>
                 <entry key="funding">
                     <list>
                         <bean class="org.dspace.content.edit.EditItemMode">
