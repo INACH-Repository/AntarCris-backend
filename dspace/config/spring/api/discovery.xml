@@ -1282,10 +1282,16 @@
             <list>
                 <ref bean="graphProjectByDate" />
                 <ref bean="graphByResearchLines" />
+                <ref bean="searchFilterProjectPrincipalInvestigator" />
+                <ref bean="searchFilterProjectImplementingInstitution" />
                 <ref bean="searchFilterProjectStartDate" />
                 <ref bean="searchFilterProjectEndDate" />
-                <ref bean="searchFilterProjectResearchLine" />
-                <ref bean="searchFilterEntityType" />
+                <ref bean="searchFilterFunderName" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterIdentifier"/>
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The search filters which can be used on the discovery search page-->
@@ -1293,11 +1299,17 @@
             <list>
                 <ref bean="graphProjectByDate" />
                 <ref bean="graphByResearchLines" />
+                <ref bean="searchFilterTitle" />
+                <ref bean="searchFilterProjectPrincipalInvestigator" />
+                <ref bean="searchFilterProjectImplementingInstitution" />
                 <ref bean="searchFilterProjectStartDate" />
                 <ref bean="searchFilterProjectEndDate" />
-                <ref bean="searchFilterProjectResearchLine" />
-                <ref bean="searchFilterEntityType" />
-                <ref bean="searchFilterProjectInvestigator"/>
+                <ref bean="searchFilterFunderName" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterIdentifier" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -1421,14 +1433,37 @@
 
     <!-- project investigated by people affiliated to an orgunit -->
     <bean id="relationOrgunitRPProjectConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
-        <property name="searchFilters">
-            <list>
-                <ref bean="graphByResearchLines" />
-            </list>
-        </property>
+        <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
             <list>
                 <ref bean="graphByResearchLines" />
+                <ref bean="searchFilterProjectPrincipalInvestigator" />
+                <ref bean="searchFilterProjectImplementingInstitution" />
+                <ref bean="searchFilterProjectStartDate" />
+                <ref bean="searchFilterProjectEndDate" />
+                <ref bean="searchFilterFunderName" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterIdentifier"/>
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterEntityType"/>
+            </list>
+        </property>
+        <!--The search filters which can be used on the discovery search page-->
+        <property name="searchFilters">
+            <list>
+                <ref bean="graphByResearchLines" />
+                <ref bean="searchFilterTitle" />
+                <ref bean="searchFilterProjectPrincipalInvestigator" />
+                <ref bean="searchFilterProjectImplementingInstitution" />
+                <ref bean="searchFilterProjectStartDate" />
+                <ref bean="searchFilterProjectEndDate" />
+                <ref bean="searchFilterFunderName" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterIdentifier" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -1631,6 +1666,37 @@
 
     <!-- project participated by an orgunit -->
     <bean id="relationOrgunitProjectsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <!--Which sidebar facets are to be displayed-->
+        <property name="sidebarFacets">
+            <list>
+                <ref bean="searchFilterProjectPrincipalInvestigator" />
+                <ref bean="searchFilterProjectImplementingInstitution" />
+                <ref bean="searchFilterProjectStartDate" />
+                <ref bean="searchFilterProjectEndDate" />
+                <ref bean="searchFilterFunderName" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterIdentifier"/>
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterEntityType"/>
+            </list>
+        </property>
+        <!--The search filters which can be used on the discovery search page-->
+        <property name="searchFilters">
+            <list>
+                <ref bean="searchFilterTitle" />
+                <ref bean="searchFilterProjectPrincipalInvestigator" />
+                <ref bean="searchFilterProjectImplementingInstitution" />
+                <ref bean="searchFilterProjectStartDate" />
+                <ref bean="searchFilterProjectEndDate" />
+                <ref bean="searchFilterFunderName" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterIdentifier" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterEntityType"/>
+            </list>
+        </property>
         <!--The sort filters for the discovery search-->
         <property name="searchSortConfiguration">
             <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
@@ -2165,20 +2231,31 @@
         <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
             <list>
-                <ref bean="searchFilterSubject"/>
+                <ref bean="searchFilterProjectPrincipalInvestigator" />
+                <ref bean="searchFilterProjectImplementingInstitution" />
+                <ref bean="searchFilterProjectStartDate" />
+                <ref bean="searchFilterProjectEndDate" />
+                <ref bean="searchFilterFunderName" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterIdentifier"/>
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
                 <ref bean="searchFilterEntityType"/>
-                <ref bean="searchFilterProjectInvestigator"/>
-                <ref bean="searchFilterProjectOrgUnits" />
             </list>
         </property>
         <!--The search filters which can be used on the discovery search page-->
         <property name="searchFilters">
             <list>
-                <ref bean="searchFilterSubject"/>
-                <ref bean="searchFilterEntityType"/>
-                <ref bean="searchFilterProjectInvestigator"/>
-                <ref bean="searchFilterProjectOrgUnits"/>
-                <ref bean="searchFilterIdentifier"/>
+                <ref bean="searchFilterTitle" />
+                <ref bean="searchFilterProjectPrincipalInvestigator" />
+                <ref bean="searchFilterProjectImplementingInstitution" />
+                <ref bean="searchFilterProjectStartDate" />
+                <ref bean="searchFilterProjectEndDate" />
+                <ref bean="searchFilterFunderName" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterIdentifier" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
                 <ref bean="searchFilterEntityType"/>
             </list>
         </property>
@@ -3359,6 +3436,39 @@
         <property name="facetLimit" value="5"/>
         <property name="sortOrderSidebar" value="COUNT"/>
         <property name="sortOrderFilterPage" value="COUNT"/>
+    </bean>
+
+    <!-- Principal Investigator -->
+
+    <bean id="searchFilterProjectPrincipalInvestigator"
+          class="org.dspace.discovery.configuration.DiscoverySearchFilterFacet">
+        <property name="indexFieldName" value="principalInvestigator" />
+        <property name="metadataFields">
+            <list>
+                <value>crispj.investigator</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="isOpenByDefault" value="false"/>
+        <property name="pageSize" value="10"/>
+        <property name="exposeMinAndMaxValue" value="false"/>
+    </bean>
+
+    <!-- Implementing Institution -->
+    <bean id="searchFilterProjectImplementingInstitution" class="org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration">
+        <property name="indexFieldName" value="implementingInstitution"/>
+        <property name="metadataFields">
+            <list>
+                <value>crispj.coordinator</value>
+            </list>
+        </property>
+        <property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="COUNT"/>
+        <property name="sortOrderFilterPage" value="COUNT"/>
+        <property name="splitter" value="::"/>
+
     </bean>
 
     <bean id="searchFilterEquipmentOwner" class="org.dspace.discovery.configuration.HierarchicalSidebarFacetConfiguration">
