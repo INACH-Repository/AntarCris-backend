@@ -1343,17 +1343,17 @@
         <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
             <list>
-                <!--<ref bean="graphPublicationByType" />-->
-                <ref bean="graphPublicationByDate" />
-                <ref bean="graphByResearchLines" />
-                <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterAuthor" />
-	            <ref bean="searchFilterEditor" />
-	            <ref bean="searchFilterOrgUnit" />
-	            <ref bean="searchFilterSubject" />
-	            <ref bean="searchFilterFunding" />
-	            <ref bean="searchFilterContentInOriginalBundle"/>
-	            <ref bean="searchFilterType" />
+                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterCountry" />
+                <ref bean="searchFilterQuartile" />
+                <ref bean="searchFilterContentInOriginalBundle"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
@@ -1362,17 +1362,19 @@
         <property name="searchFilters">
             <list>
                 <ref bean="searchFilterTitle" />
-                <!--<ref bean="graphPublicationByType" />-->
-                <ref bean="graphPublicationByDate" />
-                <ref bean="graphByResearchLines" />
-                <ref bean="searchFilterIssued" />
                 <ref bean="searchFilterAuthor" />
-                <ref bean="searchFilterEditor" />
                 <ref bean="searchFilterOrgUnit" />
                 <ref bean="searchFilterSubject" />
-                <ref bean="searchFilterFunding" />
+                <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterCountry" />
+                <ref bean="searchFilterQuartile" />
                 <ref bean="searchFilterContentInOriginalBundle"/>
-                <ref bean="searchFilterType" />
+                <ref bean="searchFilterFileNameInOriginalBundle" />
+                <ref bean="searchFilterFileDescriptionInOriginalBundle" />
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -1451,6 +1453,43 @@
 
     <!-- publication sponsored by an orgunit -->
     <bean id="relationOrgunitPublicationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <!--Which sidebar facets are to be displayed-->
+        <property name="sidebarFacets">
+            <list>
+                <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterCountry" />
+                <ref bean="searchFilterQuartile" />
+                <ref bean="searchFilterContentInOriginalBundle"/>
+                <ref bean="searchFilterEntityType"/>
+            </list>
+        </property>
+        <!-- Set TagCloud configuration per discovery configuration -->
+        <property name="tagCloudFacetConfiguration" ref="defaultTagCloudFacetConfiguration"/>
+        <!--The search filters which can be used on the discovery search page-->
+        <property name="searchFilters">
+            <list>
+                <ref bean="searchFilterTitle" />
+                <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterCountry" />
+                <ref bean="searchFilterQuartile" />
+                <ref bean="searchFilterContentInOriginalBundle"/>
+                <ref bean="searchFilterFileNameInOriginalBundle" />
+                <ref bean="searchFilterFileDescriptionInOriginalBundle" />
+                <ref bean="searchFilterEntityType"/>
+            </list>
+        </property>
         <!--The sort filters for the discovery search-->
         <property name="searchSortConfiguration">
             <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
@@ -1477,19 +1516,41 @@
 
     <!-- publication authored by people affiliated to an orgunit -->
     <bean id="relationOrgunitRPPublicationsConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
             <list>
-                <ref bean="searchFilterTypes" />
-                <ref bean="graphPublicationByDate" />
-                <ref bean="graphByResearchLines" />
+                <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterCountry" />
+                <ref bean="searchFilterQuartile" />
+                <ref bean="searchFilterContentInOriginalBundle"/>
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
-        <!--The search filters which can be used on the discovery search page (same as defaultConfiguration above)-->
+        <!-- Set TagCloud configuration per discovery configuration -->
+        <property name="tagCloudFacetConfiguration" ref="defaultTagCloudFacetConfiguration"/>
+        <!--The search filters which can be used on the discovery search page-->
         <property name="searchFilters">
             <list>
-                <ref bean="searchFilterTypes" />
-                <ref bean="graphPublicationByDate" />
-                <ref bean="graphByResearchLines" />
+                <ref bean="searchFilterTitle" />
+                <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterCountry" />
+                <ref bean="searchFilterQuartile" />
+                <ref bean="searchFilterContentInOriginalBundle"/>
+                <ref bean="searchFilterFileNameInOriginalBundle" />
+                <ref bean="searchFilterFileDescriptionInOriginalBundle" />
+                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -1710,6 +1771,43 @@
 
     <!-- publications related to a project -->
     <bean id="relationProjectPublicationConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
+        <!--Which sidebar facets are to be displayed-->
+        <property name="sidebarFacets">
+            <list>
+                <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterCountry" />
+                <ref bean="searchFilterQuartile" />
+                <ref bean="searchFilterContentInOriginalBundle"/>
+                <ref bean="searchFilterEntityType"/>
+            </list>
+        </property>
+        <!-- Set TagCloud configuration per discovery configuration -->
+        <property name="tagCloudFacetConfiguration" ref="defaultTagCloudFacetConfiguration"/>
+        <!--The search filters which can be used on the discovery search page-->
+        <property name="searchFilters">
+            <list>
+                <ref bean="searchFilterTitle" />
+                <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterIssued" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterCountry" />
+                <ref bean="searchFilterQuartile" />
+                <ref bean="searchFilterContentInOriginalBundle"/>
+                <ref bean="searchFilterFileNameInOriginalBundle" />
+                <ref bean="searchFilterFileDescriptionInOriginalBundle" />
+                <ref bean="searchFilterEntityType"/>
+            </list>
+        </property>
         <!--The sort filters for the discovery search-->
         <property name="searchSortConfiguration">
             <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
