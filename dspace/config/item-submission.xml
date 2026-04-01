@@ -379,5 +379,9 @@
       <step id="thesis_indexing" />
       <step id="detect-duplicate" />
     </submission-process>
+    <submission-process name="thesis-edit">
+      <step id="thesis" />
+      <step id="thesis_indexing" />
+    </submission-process>
   </submission-definitions>
 </item-submission>

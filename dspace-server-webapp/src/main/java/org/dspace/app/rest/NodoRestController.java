@@ -82,20 +82,29 @@ public class NodoRestController {
             List<MetadataValueRest> metadataAuthors = metadata.get("dc.contributor.author");
             List<MetadataValueRest> metadataAffiliation = metadata.get("oairecerif.author.affiliation");
             List<MetadataValueRest> metadataCountries = metadata.get("antarc.affiliation.country");
+            //antarc.affiliation.country, oairecerif.author.affiliation
 
             if (entityType.equals("OrgUnit")) {
                 if (metadataAffiliation != null && metadataCountries != null) {
+                    
                     for (int i = 0; i < metadataAffiliation.size(); i++) {
                         String affiliation = metadataAffiliation.get(i).getValue();
                         String authority = metadataAffiliation.get(i).getAuthority();
-                        if (!affiliation.equals(PLACEHOLDER_PARENT_METADATA_VALUE) && (authority == null || !authority.equals(dsoScope))) {
-                            String country = metadataCountries.get(i).getValue();
-                            if (!country.equals(PLACEHOLDER_PARENT_METADATA_VALUE) && countryStr.get(country) == null) {
-                                countryStr.put(country, 1);
-                            } else if (!country.equals(PLACEHOLDER_PARENT_METADATA_VALUE)) {
-                                countryStr.put(country, countryStr.get(country) + 1);
-                            }
 
+                        //Comprueba si la persona tiene afiliacion
+                        if (!affiliation.equals(PLACEHOLDER_PARENT_METADATA_VALUE)) {
+                            String country = metadataCountries.get(i).getValue();
+
+                            //Comprueba si el country existe dentro de la persona
+                            if (!country.equals(PLACEHOLDER_PARENT_METADATA_VALUE)){
+
+                                //Comprueba si el pais ya fue considerado
+                                if (countryStr.get(country) == null) {
+                                    countryStr.put(country, 1);
+                                }else{
+                                    countryStr.put(country, countryStr.get(country) + 1);
+                                }
+                            }
                         }
                     }
                 }
