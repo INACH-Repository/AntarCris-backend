@@ -2297,6 +2297,30 @@
     
     <bean id="thesisConf" class="org.dspace.discovery.configuration.DiscoveryConfiguration" scope="prototype" parent="defaultConfiguration">
         <property name="id" value="thesis"/>
+        <property name="sidebarFacets">
+            <list>
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterEntityType"/>
+            </list>
+        </property>
+        <property name="searchFilters">
+            <list>
+                <ref bean="searchFilterTitle" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterContentInOriginalBundle"/>
+                <ref bean="searchFilterFileNameInOriginalBundle" />
+                <ref bean="searchFilterFileDescriptionInOriginalBundle" />
+                <ref bean="searchFilterEntityType"/>
+            </list>
+        </property>
         <property name="defaultFilterQueries">
             <list>
                 <!--value>dspace.entity.type:Thesis</value>-->
