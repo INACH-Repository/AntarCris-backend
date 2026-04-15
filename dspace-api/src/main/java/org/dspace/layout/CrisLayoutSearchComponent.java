@@ -21,7 +21,7 @@ public class CrisLayoutSearchComponent implements CrisLayoutSectionComponent {
 
     private String searchType;
 
-    private Integer initialStatements = 3;
+    private Integer initialStatements = 1;
 
     private boolean displayTitle = true;
 
