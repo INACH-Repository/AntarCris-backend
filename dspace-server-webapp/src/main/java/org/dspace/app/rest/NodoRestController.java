@@ -86,42 +86,78 @@ public class NodoRestController {
 
             if (entityType.equals("OrgUnit")) {
                 if (metadataAffiliation != null && metadataCountries != null) {
+                    Set<String> uniqueCountriesInPublication = new HashSet<>();
                     
                     for (int i = 0; i < metadataAffiliation.size(); i++) {
                         String affiliation = metadataAffiliation.get(i).getValue();
-                        String authority = metadataAffiliation.get(i).getAuthority();
 
-                        //Comprueba si la persona tiene afiliacion
                         if (!affiliation.equals(PLACEHOLDER_PARENT_METADATA_VALUE)) {
                             String country = metadataCountries.get(i).getValue();
 
-                            //Comprueba si el country existe dentro de la persona
                             if (!country.equals(PLACEHOLDER_PARENT_METADATA_VALUE)){
-
-                                //Comprueba si el pais ya fue considerado
-                                if (countryStr.get(country) == null) {
-                                    countryStr.put(country, 1);
-                                }else{
-                                    countryStr.put(country, countryStr.get(country) + 1);
-                                }
+                                uniqueCountriesInPublication.add(country);
                             }
+                        }
+                    }
+
+                    // Terminado el análisis de la publicación, añade los países únicos al contador global
+                    for (String country : uniqueCountriesInPublication) {
+                        if (countryStr.get(country) == null) {
+                            countryStr.put(country, 1);
+                        } else {
+                            countryStr.put(country, countryStr.get(country) + 1);
                         }
                     }
                 }
             }
 
-            if (entityType.equals("Person")) {
-                if (metadataAuthors != null) {
+            /*if (entityType.equals("Person")) {
+                if (metadataAuthors != null && metadataCountries != null) {
                     for (int i = 0; i < metadataAuthors.size(); i++) {
                         String authorAuthority = metadataAuthors.get(i).getAuthority();
 
-                        if (authorAuthority == null || !authorAuthority.equals(dsoScope)) {
+                        if ( authorAuthority == null || !authorAuthority.equals(dsoScope) ) {
                             String country = metadataCountries.get(i).getValue();
                             if (!country.equals(PLACEHOLDER_PARENT_METADATA_VALUE) && countryStr.get(country) == null) {
                                 countryStr.put(country, 1);
                             } else if (!country.equals(PLACEHOLDER_PARENT_METADATA_VALUE)) {
                                 countryStr.put(country, countryStr.get(country) + 1);
                             }
+                        }
+                    }
+                }
+            }*/
+
+
+            if (entityType.equals("Person")) {
+                if (metadataAuthors != null && metadataCountries != null) {
+                    
+                    // Almacena países únicos de coautores externos para la publicación actual
+                    Set<String> uniqueCountriesInPublication = new HashSet<>();
+
+                    for (int i = 0; i < metadataAuthors.size(); i++) {
+                        String authorAuthority = metadataAuthors.get(i).getAuthority();
+
+                        // Filtra si el autor es externo (no coincide con el dsoScope de la persona consultada)
+                        if (authorAuthority == null || !authorAuthority.equals(dsoScope)) {
+                            
+                            // Validar protección de tamaño por si los metadatos de país no coinciden en cantidad
+                            if (i < metadataCountries.size()) {
+                                String country = metadataCountries.get(i).getValue();
+                                
+                                if (!country.equals(PLACEHOLDER_PARENT_METADATA_VALUE)) {
+                                    uniqueCountriesInPublication.add(country);
+                                }
+                            }
+                        }
+                    }
+
+                    // Incrementa el contador global con los países únicos de esta publicación
+                    for (String country : uniqueCountriesInPublication) {
+                        if (countryStr.get(country) == null) {
+                            countryStr.put(country, 1);
+                        } else {
+                            countryStr.put(country, countryStr.get(country) + 1);
                         }
                     }
                 }
