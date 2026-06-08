@@ -60,6 +60,7 @@ public class NodoRestController {
             List<String> dsoTypes,
             @RequestParam(name = "scope", required = false) String dsoScope,
             @RequestParam(name = "configuration", required = false, defaultValue = "RELATION.OrgUnit.rppublications") String configuration,
+            //@RequestParam(name = "configuration", required = false, defaultValue = "RELATION.OrgUnit.publications") String configuration,
             @RequestParam(name = "entitytype", required = false, defaultValue = "OrgUnit") String entityType
     ) throws Exception {
 

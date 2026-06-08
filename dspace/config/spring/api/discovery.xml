@@ -1437,6 +1437,7 @@
         <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
             <list>
+                <ref bean="graphProjectByDate" />
                 <ref bean="graphByResearchLines" />
                 <ref bean="searchFilterProjectPrincipalInvestigator" />
                 <ref bean="searchFilterProjectImplementingInstitution" />
@@ -1453,6 +1454,7 @@
         <!--The search filters which can be used on the discovery search page-->
         <property name="searchFilters">
             <list>
+                <ref bean="graphProjectByDate" />
                 <ref bean="graphByResearchLines" />
                 <ref bean="searchFilterTitle" />
                 <ref bean="searchFilterProjectPrincipalInvestigator" />
@@ -1506,8 +1508,6 @@
                 <ref bean="searchFilterANID" />
                 <ref bean="searchFilterCountry" />
                 <ref bean="searchFilterQuartile" />
-                <ref bean="searchFilterContentInOriginalBundle"/>
-                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
@@ -1525,10 +1525,6 @@
                 <ref bean="searchFilterANID" />
                 <ref bean="searchFilterCountry" />
                 <ref bean="searchFilterQuartile" />
-                <ref bean="searchFilterContentInOriginalBundle"/>
-                <ref bean="searchFilterFileNameInOriginalBundle" />
-                <ref bean="searchFilterFileDescriptionInOriginalBundle" />
-                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -1549,8 +1545,11 @@
         <property name="defaultFilterQueries">
             <list>
                 <!--Only find related items. The placeholder {0} will be replaced with scope (UUID of item)-->
-                <value>dc.description.sponsorship_authority:{0}</value>
+                <!--<value>'{'!join from=search.resourceid to=author_authority fromIndex=${solr.multicorePrefix}search'}'person.affiliation.name_authority:{0}</value>-->
+                <value>oairecerif.author.affiliation_authority:{0}</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
+                <!--<value>dc.description.sponsorship_authority:{0}</value>
+                <value>-withdrawn:true AND -discoverable:false</value>-->
             </list>
         </property>
     </bean>
@@ -1571,8 +1570,6 @@
                 <ref bean="searchFilterANID" />
                 <ref bean="searchFilterCountry" />
                 <ref bean="searchFilterQuartile" />
-                <ref bean="searchFilterContentInOriginalBundle"/>
-                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
@@ -1592,10 +1589,6 @@
                 <ref bean="searchFilterANID" />
                 <ref bean="searchFilterCountry" />
                 <ref bean="searchFilterQuartile" />
-                <ref bean="searchFilterContentInOriginalBundle"/>
-                <ref bean="searchFilterFileNameInOriginalBundle" />
-                <ref bean="searchFilterFileDescriptionInOriginalBundle" />
-                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -1616,7 +1609,8 @@
         <property name="defaultFilterQueries">
             <list>
                 <!--Only find related items. The placeholder {0} will be replaced with scope (UUID of item)-->
-                <value>'{'!join from=search.resourceid to=author_authority fromIndex=${solr.multicorePrefix}search'}'person.affiliation.name_authority:{0}</value>
+                <!--<value>'{'!join from=search.resourceid to=author_authority fromIndex=${solr.multicorePrefix}search'}'person.affiliation.name_authority:{0}</value>-->
+                <value>oairecerif.author.affiliation_authority:{0}</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
         </property>
@@ -1679,6 +1673,8 @@
         <!--Which sidebar facets are to be displayed-->
         <property name="sidebarFacets">
             <list>
+                <ref bean="graphProjectByDate" />
+                <ref bean="graphByResearchLines" />
                 <ref bean="searchFilterProjectPrincipalInvestigator" />
                 <ref bean="searchFilterProjectImplementingInstitution" />
                 <ref bean="searchFilterProjectStartDate" />
@@ -1694,6 +1690,8 @@
         <!--The search filters which can be used on the discovery search page-->
         <property name="searchFilters">
             <list>
+                <ref bean="graphProjectByDate" />
+                <ref bean="graphByResearchLines" />
                 <ref bean="searchFilterTitle" />
                 <ref bean="searchFilterProjectPrincipalInvestigator" />
                 <ref bean="searchFilterProjectImplementingInstitution" />
@@ -1778,11 +1776,36 @@
         </bean>
 
     <bean id="relationOrgunitThesisConfiguration" class="org.dspace.discovery.configuration.DiscoveryRelatedItemConfiguration">
-        <!--The sort filters for the discovery search-->
+        <property name="sidebarFacets">
+            <list>
+                <ref bean="graphThesisByDate" />
+                <ref bean="graphByResearchLines" />
+                <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+            </list>
+        </property>
+        <!-- Set TagCloud configuration per discovery configuration -->
+        <property name="tagCloudFacetConfiguration" ref="defaultTagCloudFacetConfiguration"/>
+        <!--The search filters which can be used on the discovery search page-->
+        <property name="searchFilters">
+            <list>
+                <ref bean="graphThesisByDate" />
+                <ref bean="graphByResearchLines" />
+                <ref bean="searchFilterAuthor" />
+                <ref bean="searchFilterOrgUnit" />
+                <ref bean="searchFilterSubject" />
+                <ref bean="searchFilterSDG" />
+                <ref bean="searchFilterProcienLines" />
+                <ref bean="searchFilterANID" />
+            </list>
+        </property>
+
         <property name="searchSortConfiguration">
             <bean class="org.dspace.discovery.configuration.DiscoverySortConfiguration">
-                <!--<property name="defaultSort" ref="sortDateIssued"/>-->
-                <!--DefaultSortOrder can either be desc or asc (desc is default)-->
                 <property name="sortFields">
                     <list>
                         <ref bean="sortByProjectsSelection" />
@@ -1791,19 +1814,12 @@
                 </property>
             </bean>
         </property>
-        <!--Any default filter queries, these filter queries will be used for all
-                queries done by discovery for this configuration -->
         <property name="defaultFilterQueries">
             <list>
                 <value>organization_authority:{0}</value>
-                <!--<value>dspace.entity.type:Thesis</value>-->
                 <value>entityType_keyword:Thesis</value>
                 <value>-withdrawn:true AND -discoverable:false</value>
             </list>
-                <!--Only find related items. The placeholder {0} will be replaced with scope (UUID of item)-->
-            <!--    <value>oairecerif.author.affiliation_authority:{0}</value>
-                <value>-withdrawn:true AND -discoverable:false</value>
-            </list>-->
         </property>
     </bean>
 
@@ -2006,8 +2022,6 @@
                 <ref bean="searchFilterANID" />
                 <ref bean="searchFilterCountry" />
                 <ref bean="searchFilterQuartile" />
-                <ref bean="searchFilterContentInOriginalBundle"/>
-                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
@@ -2025,10 +2039,6 @@
                 <ref bean="searchFilterANID" />
                 <ref bean="searchFilterCountry" />
                 <ref bean="searchFilterQuartile" />
-                <ref bean="searchFilterContentInOriginalBundle"/>
-                <ref bean="searchFilterFileNameInOriginalBundle" />
-                <ref bean="searchFilterFileDescriptionInOriginalBundle" />
-                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -2144,7 +2154,6 @@
                 <ref bean="searchFilterIsPublicationOfProjectRelation"/>
                 <ref bean="searchFilterProjectInvestigator"/>
                 <ref bean="searchFilterProjectOrganisation"/>
-                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -2252,7 +2261,6 @@
                 <ref bean="searchFilterIdentifier"/>
                 <ref bean="searchFilterProcienLines" />
                 <ref bean="searchFilterANID" />
-                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The search filters which can be used on the discovery search page-->
@@ -2268,7 +2276,6 @@
                 <ref bean="searchFilterIdentifier" />
                 <ref bean="searchFilterProcienLines" />
                 <ref bean="searchFilterANID" />
-                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -4262,6 +4269,25 @@
     </bean>
 
     <!-- Configurations for GraphDiscoverSearchFilterFacet -->
+    <bean id="graphThesisByDate" class="org.dspace.discovery.configuration.GraphDiscoverSearchFilterFacet">
+    	<property name="facetLimit" value="5"/>
+        <property name="sortOrderSidebar" value="VALUE"/>
+        <property name="indexFieldName" value="graphpubldate" />
+        <property name="isDate" value="true" />
+        <property name="inverseDirection" value="true" />
+        <property name="fillDateGaps" value="true" />
+        <property name="metadataFields">
+            <list>
+                <value>dc.date.issued</value>
+            </list>
+        </property>
+        <property name="graphType" value="bar" />
+        <property name="exposeMissing" value="true" />
+        <property name="exposeMore" value="true" />
+        <property name="exposeTotalElements" value="true" />
+    </bean>
+    
+    <!-- Configurations for GraphDiscoverSearchFilterFacet -->
     <bean id="graphPublicationByDate" class="org.dspace.discovery.configuration.GraphDiscoverSearchFilterFacet">
     	<property name="facetLimit" value="5"/>
         <property name="sortOrderSidebar" value="VALUE"/>
@@ -4337,7 +4363,7 @@
                 <value>antarc.area.inach</value>
             </list>
         </property>
-        <property name="graphType" value="pie" />
+        <property name="graphType" value="bar" />
         <property name="exposeMissing" value="true" />
         <property name="exposeMore" value="true" />
         <property name="exposeTotalElements" value="true" />
