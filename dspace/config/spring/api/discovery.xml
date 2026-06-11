@@ -1439,16 +1439,14 @@
             <list>
                 <ref bean="graphProjectByDate" />
                 <ref bean="graphByResearchLines" />
-                <ref bean="searchFilterProjectPrincipalInvestigator" />
-                <ref bean="searchFilterProjectImplementingInstitution" />
+                <ref bean="searchFilterProjectPrincipalInvestigator" /> <!--INVESTIGADOR A CARGO-->
+                <ref bean="searchFilterProjectImplementingInstitution" /> <!--ORGANIZACION EJECUTORA-->
                 <ref bean="searchFilterProjectStartDate" />
                 <ref bean="searchFilterProjectEndDate" />
                 <ref bean="searchFilterFunderName" />
                 <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterIdentifier"/>
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
-                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The search filters which can be used on the discovery search page-->
@@ -1465,8 +1463,6 @@
                 <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterIdentifier" />
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
-                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -1503,9 +1499,7 @@
                 <ref bean="searchFilterOrgUnit" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterIssued" />
-                <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
                 <ref bean="searchFilterCountry" />
                 <ref bean="searchFilterQuartile" />
             </list>
@@ -1520,9 +1514,7 @@
                 <ref bean="searchFilterOrgUnit" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterIssued" />
-                <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
                 <ref bean="searchFilterCountry" />
                 <ref bean="searchFilterQuartile" />
             </list>
@@ -1565,9 +1557,7 @@
                 <ref bean="searchFilterOrgUnit" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterIssued" />
-                <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
                 <ref bean="searchFilterCountry" />
                 <ref bean="searchFilterQuartile" />
             </list>
@@ -1584,9 +1574,7 @@
                 <ref bean="searchFilterOrgUnit" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterIssued" />
-                <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
                 <ref bean="searchFilterCountry" />
                 <ref bean="searchFilterQuartile" />
             </list>
@@ -1680,11 +1668,8 @@
                 <ref bean="searchFilterProjectStartDate" />
                 <ref bean="searchFilterProjectEndDate" />
                 <ref bean="searchFilterFunderName" />
-                <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterIdentifier"/>
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
-                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The search filters which can be used on the discovery search page-->
@@ -1698,11 +1683,8 @@
                 <ref bean="searchFilterProjectStartDate" />
                 <ref bean="searchFilterProjectEndDate" />
                 <ref bean="searchFilterFunderName" />
-                <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterIdentifier" />
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
-                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -1783,9 +1765,7 @@
                 <ref bean="searchFilterAuthor" />
                 <ref bean="searchFilterOrgUnit" />
                 <ref bean="searchFilterSubject" />
-                <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
             </list>
         </property>
         <!-- Set TagCloud configuration per discovery configuration -->
@@ -1798,9 +1778,7 @@
                 <ref bean="searchFilterAuthor" />
                 <ref bean="searchFilterOrgUnit" />
                 <ref bean="searchFilterSubject" />
-                <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
             </list>
         </property>
 
@@ -2017,9 +1995,7 @@
                 <ref bean="searchFilterOrgUnit" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterIssued" />
-                <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
                 <ref bean="searchFilterCountry" />
                 <ref bean="searchFilterQuartile" />
             </list>
@@ -2034,9 +2010,7 @@
                 <ref bean="searchFilterOrgUnit" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterIssued" />
-                <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
                 <ref bean="searchFilterCountry" />
                 <ref bean="searchFilterQuartile" />
             </list>
@@ -2257,10 +2231,8 @@
                 <ref bean="searchFilterProjectStartDate" />
                 <ref bean="searchFilterProjectEndDate" />
                 <ref bean="searchFilterFunderName" />
-                <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterIdentifier"/>
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
             </list>
         </property>
         <!--The search filters which can be used on the discovery search page-->
@@ -2272,10 +2244,8 @@
                 <ref bean="searchFilterProjectStartDate" />
                 <ref bean="searchFilterProjectEndDate" />
                 <ref bean="searchFilterFunderName" />
-                <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterIdentifier" />
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
             </list>
         </property>
         <!--The sort filters for the discovery search-->
@@ -2322,10 +2292,8 @@
             <list>
                 <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterOrgUnit" />
-                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <property name="searchFilters">
@@ -2333,10 +2301,8 @@
                 <ref bean="searchFilterTitle" />
                 <ref bean="searchFilterSDG" />
                 <ref bean="searchFilterProcienLines" />
-                <ref bean="searchFilterANID" />
                 <ref bean="searchFilterSubject" />
                 <ref bean="searchFilterOrgUnit" />
-                <ref bean="searchFilterEntityType"/>
             </list>
         </property>
         <!--The sort filters for the discovery search-->
